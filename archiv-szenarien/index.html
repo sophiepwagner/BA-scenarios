@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Aufgabe</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Admin-Navbar: nur sichtbar mit ?admin=1 (siehe remote.js). Versuchspersonen sehen sie nie. -->
+    <nav id="admin" hidden>
+      <div class="admin-row">
+        <span class="admin-title">Admin</span>
+        <!-- Schritt-Buttons werden aus den Schritten (STAGES in main.js) erzeugt -->
+        <div id="a-tabs" class="admin-tabs"></div>
+      </div>
+      <div class="admin-row">
+        <button type="button" id="a-start">Start (beide)</button>
+        <button type="button" id="a-skip">Zum Gespräch</button>
+        <button type="button" id="a-reset">Neu starten</button>
+        <button type="button" id="a-next">Weiter ›</button>
+        <span id="a-vp" class="vp-status off">VP: nicht verbunden</span>
+      </div>
+      <div class="admin-row admin-small">
+        <label>VP-ID <input id="a-person" size="6" /></label>
+        <button type="button" id="a-link">VP-Link kopieren</button>
+        <span id="a-room"></span>
+        <span id="a-net"></span>
+      </div>
+    </nav>
+
+    <!-- Ablauf-Leiste: zeigt allen, wo man gerade ist (wird aus STAGES in main.js erzeugt) -->
+    <ol id="steps" class="steps" aria-label="Ablauf"></ol>
+
+    <main>
+      <!-- Kurze Einblendung (z. B. "Das Gespräch beginnt jetzt."), liegt über dem Inhalt und verschiebt nichts -->
+      <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+
+      <!-- Schritt "Start": Begrüßung und Regeln (Platzhaltertexte, bitte anpassen) -->
+      <section id="s-welcome" class="screen" hidden>
+        <h1>Hallo und herzlich willkommen!</h1>
+        <p>Schön, dass du dabei bist. Es geht gleich los.</p>
+        <div class="task">
+          <p><strong>Worum es geht</strong></p>
+          <p>
+            Ihr führt gleich zwei kurze Gespräche. In jedem Gespräch stellt ihr euch eine schwierige Situation vor und
+            entscheidet gemeinsam, welche Gegenstände ihr mitnehmt.
+          </p>
+        </div>
+        <h2>Die Regeln</h2>
+        <ul class="rules">
+          <li>Ihr könnt nur einen Teil der Gegenstände mitnehmen.</li>
+          <li>Jede Person sieht nur ihre eigenen Gegenstände. Sie sind zuerst kurz sichtbar und verschwinden dann.</li>
+          <li>Zum Nachsehen gibt es einen Knopf, den du gedrückt halten kannst.</li>
+          <li>Am Ende müsst ihr euch einig sein.</li>
+          <li>Nach jedem Gespräch folgt ein kurzer Fragebogen.</li>
+        </ul>
+        <p class="hint">Bitte warte, bis die Gesprächsleitung weitermacht.</p>
+      </section>
+
+      <!-- Schritt "Gespräch 1/2", Screen 1: Einleitung und Aufgabe. Texte werden per JS eingesetzt. -->
+      <section id="s-start" class="screen">
+        <h1 id="title"></h1>
+        <p id="intro"></p>
+        <div class="task"><p id="task"></p></div>
+        <p class="hint" id="start-hint"></p>
+        <button id="btn-start" class="primary">Gegenstände anzeigen</button>
+      </section>
+
+      <!-- Screen 2: Lesephase, Gegenstände sichtbar, Balken läuft ab -->
+      <section id="s-read" class="screen" hidden>
+        <h2>Deine Gegenstände</h2>
+        <div class="bar"><div id="bar-fill"></div></div>
+        <ul id="items-read" class="items"></ul>
+        <p class="count" id="count"></p>
+      </section>
+
+      <!-- Screen 3: Gesprächsphase, Gegenstände verdeckt, nur per gedrücktem Knopf sichtbar -->
+      <section id="s-talk" class="screen" hidden>
+        <h2>Deine Gegenstände</h2>
+        <ul id="items-peek" class="items veiled"></ul>
+        <p class="count" id="talk-count"></p>
+        <button id="btn-peek">Gegenstände ansehen, gedrückt halten</button>
+      </section>
+
+      <!-- Schritt "Pause": Platzhalter für den Fragebogen zu Gespräch 1 -->
+      <section id="s-break" class="screen" hidden>
+        <h1>Pause</h1>
+        <p>Bitte fülle jetzt den Fragebogen zum ersten Gespräch aus.</p>
+        <p class="hint">Das nächste Gespräch startet, sobald die Gesprächsleitung weitermacht.</p>
+      </section>
+
+      <!-- Schritt "Ende": Platzhalter für Fragebogen zu Gespräch 2 und abschließenden Fragebogen -->
+      <section id="s-end" class="screen" hidden>
+        <h1>Geschafft!</h1>
+        <p>Bitte fülle jetzt den Fragebogen zum zweiten Gespräch und den abschließenden Fragebogen aus.</p>
+        <p class="hint">Vielen Dank für deine Teilnahme.</p>
+      </section>
+    </main>
+
+    <!-- Verstecktes Auswertungs-Panel (Umschalt + L): zeigt Peek-Daten als CSV -->
+    <aside id="log" hidden>
+      <div id="log-summary"></div>
+      <textarea id="log-csv" readonly></textarea>
+      <div class="row">
+        <button id="btn-copy">CSV kopieren</button>
+        <button id="btn-close-log">Schließen</button>
+      </div>
+    </aside>
+
+    <!-- Reihenfolge wichtig: icons, scenarios und sync liefern Daten/Funktionen für main und remote -->
+    <script src="icons.js"></script>
+    <script src="scenarios.js"></script>
+    <script src="sync.js"></script>
+    <script src="main.js"></script>
+    <script src="remote.js"></script>
+  </body>
+</html>

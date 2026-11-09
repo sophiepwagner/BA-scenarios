@@ -1,0 +1,380 @@
+/* ===== Design-Variablen (Farben, Schrift) ===== */
+:root {
+  --paper: #ffffff;
+  --ink: #12161c;
+  --muted: #5b6370;
+  --plate: #f2f4f7;
+  --line: #c9ced6;
+  --accent: #2a4bd0;
+  --tint: #d7e0f5;
+  --amber: #f2b705;
+  --sand: #f3e6ae;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+}
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column; /* Admin-Navbar oben, Inhalt darunter */
+  align-items: center;
+}
+main {
+  position: relative; /* Bezugspunkt für die Einblendung #notice */
+  width: 100%;
+  max-width: 520px;
+  padding: 28px 18px 36px;
+}
+
+/* ===== Ablauf-Leiste oben: ein Segment pro Schritt, aktueller Schritt hervorgehoben ===== */
+.steps {
+  list-style: none;
+  display: flex;
+  gap: 6px;
+  width: 100%;
+  max-width: 520px;
+  margin: 0;
+  padding: 12px 18px 0;
+}
+.steps li {
+  flex: 1 1 0;
+  min-width: 0;
+  padding-top: 7px;
+  border-top: 4px solid var(--line);
+  border-radius: 2px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.2;
+  text-align: center;
+  overflow-wrap: anywhere; /* auf schmalen Handys umbrechen ("Gespräch" / "1") statt abschneiden */
+}
+.steps li.done {
+  border-top-color: var(--tint);
+}
+.steps li.current {
+  border-top-color: var(--accent);
+  color: var(--ink);
+  font-weight: 700;
+}
+
+/* Regelliste im Schritt "Start" */
+.rules {
+  margin: 0 0 18px;
+  padding-left: 20px;
+  line-height: 1.55;
+}
+.rules li {
+  margin-bottom: 6px;
+}
+
+/* ===== Kurze Einblendung oben im Inhalt (überlagert, verschiebt kein Layout) ===== */
+.notice {
+  position: absolute;
+  top: 10px;
+  left: 18px;
+  right: 18px;
+  z-index: 5;
+  padding: 12px 16px;
+  border-radius: 6px;
+  background: var(--ink);
+  color: #fff;
+  font-weight: 600;
+  text-align: center;
+  opacity: 1;
+  transition: opacity 0.4s ease;
+}
+.notice[hidden] {
+  display: none;
+}
+.notice.fade {
+  opacity: 0;
+}
+
+h1,
+h2 {
+  font-weight: 700;
+  margin: 0;
+}
+h1 {
+  font-size: 1.7rem;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  margin-bottom: 14px;
+}
+h2 {
+  font-size: 1.15rem;
+  margin-bottom: 14px;
+}
+p {
+  line-height: 1.55;
+  margin: 0 0 14px;
+}
+.hint {
+  color: var(--muted);
+  font-size: 0.93rem;
+}
+/* Nur ein Screen ist gleichzeitig sichtbar (Steuerung per hidden-Attribut in show()) */
+.screen[hidden] {
+  display: none;
+}
+
+/* Box mit der Aufgabenstellung */
+.task {
+  background: #eef2fc;
+  border-radius: 6px;
+  padding: 14px 16px;
+  margin: 20px 0;
+}
+.task p {
+  margin: 0;
+}
+
+/* ===== Buttons ===== */
+button {
+  font: inherit;
+  border-radius: 6px;
+  cursor: pointer;
+}
+button:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+.primary {
+  width: 100%;
+  padding: 15px 16px;
+  font-weight: 600;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  color: #fff;
+}
+/* Peek-Knopf: Textauswahl und Kontextmenü sind abgeschaltet, damit langes Drücken auf dem Handy sauber funktioniert */
+#btn-peek {
+  width: 100%;
+  padding: 16px;
+  font-weight: 600;
+  background: transparent;
+  border: 1.5px solid var(--accent);
+  color: var(--accent);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  -webkit-touch-callout: none;
+}
+#btn-peek.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ===== Fortschrittsbalken der Lesephase (wird per JS von voll auf leer animiert) ===== */
+.bar {
+  height: 6px;
+  background: var(--plate);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+#bar-fill {
+  height: 100%;
+  width: 100%;
+  background: var(--accent);
+  transform-origin: left;
+}
+
+/* ===== Liste der Gegenstände ===== */
+.items {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.items li {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 88px;
+  padding: 12px 16px;
+  background: var(--plate);
+  border: 1.5px solid transparent;
+  border-radius: 6px;
+}
+.icon {
+  flex: 0 0 60px;
+  width: 60px;
+  height: 60px;
+  color: var(--ink);
+}
+.icon svg {
+  width: 60px;
+  height: 60px;
+  display: block;
+}
+.name {
+  display: block;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+.note {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+/* "veiled" = verdeckt: Kästen bleiben stehen (Layout bleibt gleich), Inhalt ist unsichtbar */
+.items.veiled li {
+  background: transparent;
+  border-style: dashed;
+  border-color: var(--line);
+}
+.items.veiled li > * {
+  visibility: hidden;
+}
+.count {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* Icon-Füllungen: Klassen, die in den SVGs unten verwendet werden */
+.t {
+  fill: var(--tint);
+}
+.c {
+  fill: #fff;
+}
+.a {
+  fill: var(--amber);
+}
+.as {
+  stroke: var(--amber);
+}
+.g {
+  fill: var(--sand);
+}
+.k {
+  fill: currentColor;
+  stroke: none;
+}
+
+/* ===== Log-Panel für die Auswertung (Umschalt + L) ===== */
+#log {
+  position: fixed;
+  inset: auto 8px 8px 8px;
+  max-width: 520px;
+  margin: 0 auto;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+  font-size: 0.85rem;
+}
+#log[hidden] {
+  display: none;
+}
+#log textarea {
+  width: 100%;
+  height: 110px;
+  font:
+    12px/1.4 ui-monospace,
+    Menlo,
+    monospace;
+}
+#log .row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+#log button {
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  background: var(--plate);
+  color: var(--ink);
+}
+
+/* ===== Admin-Navbar (nur mit ?admin=1 sichtbar) ===== */
+#admin {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 0.85rem;
+}
+#admin[hidden] {
+  display: none;
+}
+#admin .admin-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+#admin .admin-row + .admin-row {
+  margin-top: 6px;
+}
+#admin .admin-title {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+#admin .admin-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+#admin button {
+  padding: 5px 10px;
+  border: 1px solid #4a5260;
+  background: transparent;
+  color: #fff;
+  font-size: inherit;
+}
+#admin button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+#admin button.active {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+#admin .admin-small {
+  color: #aab1bd;
+  font-size: 0.78rem;
+}
+#admin input {
+  font: inherit;
+  padding: 3px 6px;
+  border-radius: 4px;
+  border: 1px solid #4a5260;
+  background: #1d232c;
+  color: #fff;
+}
+#admin .vp-status {
+  margin-left: auto;
+  font-weight: 600;
+}
+#admin .vp-status::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: #7a8290;
+}
+#admin .vp-status.on::before {
+  background: #3ecf6e;
+}
