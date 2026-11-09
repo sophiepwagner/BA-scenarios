@@ -76,6 +76,9 @@
   function kLog(code) {
     return "studie:" + code + ":log";
   }
+  function kSaved(code) {
+    return "studie:" + code + ":saved"; // Zeitpunkt, zu dem das Log heruntergeladen wurde
+  }
 
   // ---------- Zustand ----------
   var session = null; // { code, index }
@@ -133,12 +136,108 @@
       URL.revokeObjectURL(url);
     }, 2000);
   }
-  function downloadLog(kind) {
-    if (!session) return;
-    var log = lsGet(kLog(session.code)) || [];
-    var base = "log_" + session.code + "_" + new Date().toISOString().slice(0, 10);
+  // Log einer Sitzung herunterladen und vermerken, dass es gesichert wurde
+  function downloadLogFor(code, kind) {
+    var log = lsGet(kLog(code)) || [];
+    var base = "log_" + code + "_" + new Date().toISOString().slice(0, 10);
     if (kind === "csv") download(base + ".csv", toCsv(log), "text/csv;charset=utf-8");
     else download(base + ".json", JSON.stringify(log, null, 2), "application/json");
+    lsSet(kSaved(code), Date.now());
+    renderSessions();
+    renderEndSave();
+  }
+  function downloadLog(kind) {
+    if (session) downloadLogFor(session.code, kind);
+  }
+  // CSV und JSON nacheinander (mit kurzer Pause, damit der Browser beide Downloads zulässt)
+  function saveBoth(code) {
+    downloadLogFor(code, "csv");
+    setTimeout(function () {
+      downloadLogFor(code, "json");
+    }, 400);
+  }
+
+  // ---------- Gespeicherte Sitzungen (Startseite) ----------
+  // Alle Codes, zu denen ein Log im Speicher liegt
+  function storedCodes() {
+    var codes = {};
+    function add(k) {
+      var m = /^studie:([a-z0-9]{5}):log$/.exec(k);
+      if (m) codes[m[1]] = true;
+    }
+    try {
+      for (var i = 0; i < localStorage.length; i++) add(localStorage.key(i));
+    } catch (e) {}
+    Object.keys(mem).forEach(add);
+    return Object.keys(codes);
+  }
+  function clock(ts) {
+    return new Date(ts).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+  }
+  function sessionRows() {
+    return storedCodes()
+      .map(function (code) {
+        var log = lsGet(kLog(code)) || [];
+        var st = lsGet(kState(code));
+        return {
+          code: code,
+          n: log.length,
+          last: log.length ? log[log.length - 1].ts_epoch_ms : 0,
+          idx: st ? st.index : 0,
+          saved: lsGet(kSaved(code)),
+        };
+      })
+      .filter(function (r) {
+        return r.n > 0;
+      })
+      .sort(function (a, b) {
+        return b.last - a.last;
+      });
+  }
+  function renderSessions() {
+    var rows = sessionRows();
+    $("sessions").hidden = !rows.length;
+    var ul = $("sessions-list");
+    ul.innerHTML = "";
+    rows.forEach(function (r) {
+      var li = document.createElement("li");
+      var info = document.createElement("div");
+      info.className = "sess-info";
+      var code = document.createElement("span");
+      code.className = "sess-code";
+      code.textContent = r.code;
+      var meta = document.createElement("span");
+      meta.className = "sess-meta";
+      meta.textContent =
+        (r.idx === LAST ? "abgeschlossen" : "stand bei: " + ADMIN_LABEL[STATES[r.idx].id]) + " · " + r.n + " Einträge · " + clock(r.last);
+      info.appendChild(code);
+      info.appendChild(meta);
+      var badge = document.createElement("span");
+      badge.className = "badge " + (r.saved ? "ok" : "warn");
+      badge.textContent = r.saved ? "Log gespeichert" : "Log noch nicht gespeichert";
+      li.appendChild(info);
+      li.appendChild(badge);
+      ["csv", "json"].forEach(function (kind) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.textContent = kind.toUpperCase();
+        b.addEventListener("click", function () {
+          downloadLogFor(r.code, kind);
+        });
+        li.appendChild(b);
+      });
+      ul.appendChild(li);
+    });
+  }
+  // Endseite (nur Admin): Kasten zum Sichern des Logs mit Statuszeile
+  function renderEndSave() {
+    var box = $("end-save");
+    var show = admin && session && cur().id === "end";
+    box.hidden = !show;
+    if (!show) return;
+    var saved = lsGet(kSaved(session.code));
+    $("end-save-status").textContent = saved ? "Gespeichert um " + clock(saved) + " Uhr." : "Noch nicht gespeichert.";
+    box.classList.toggle("unsaved", !saved);
   }
 
   // ---------- Wechsel zwischen Zuständen ----------
@@ -151,7 +250,11 @@
   function go(index, ereignis) {
     clearTimers();
     session.index = index;
+    session.enteredAt = Date.now(); // Beginn dieser Seite (Zeitanzeige im Admin-Bereich)
     lsSet(kState(session.code), session);
+    // Am Ende ist die Sitzung nicht mehr "aktiv": das nächste Öffnen zeigt wieder die Startseite
+    if (index === LAST) lsRemove(K_ACTIVE);
+    else lsSet(K_ACTIVE, session.code);
     logEntry(ereignis || "wechsel");
     render();
   }
@@ -160,7 +263,7 @@
   }
 
   // ---------- Anzeige ----------
-  var SCREENS = ["s-start", "s-pre", "s-fb", "s-post", "s-sit", "s-pause", "s-talk", "s-done", "s-end"];
+  var SCREENS = ["s-start", "s-confirm", "s-pre", "s-fb", "s-post", "s-sit", "s-pause", "s-talk", "s-done", "s-end"];
   function render() {
     var st = cur();
     SCREENS.forEach(function (id) {
@@ -176,6 +279,7 @@
     if (st.screen === "s-pause") $("pause-nr").textContent = st.g === 1 ? "erste" : "zweite";
     if (st.screen === "s-talk") resetHold();
     if (st.form) buildTally(st);
+    if (st.id === "start") renderSessions();
     renderAdmin();
   }
 
@@ -380,6 +484,42 @@
       err.hidden = false;
       return;
     }
+    showConfirm(code);
+  });
+
+  // Bestätigung vor dem Start (nur bei Eingabe von Hand)
+  var pendingCode = null;
+  function showConfirm(code) {
+    pendingCode = code;
+    $("confirm-code").textContent = code;
+    var warn = $("confirm-warn");
+    var open = sessionRows().filter(function (r) {
+      return r.code !== "test0" && !r.saved;
+    });
+    warn.hidden = !open.length;
+    if (open.length) {
+      warn.textContent =
+        "Hinweis: Das Log von " +
+        open
+          .map(function (r) {
+            return r.code;
+          })
+          .join(", ") +
+        " ist noch nicht gespeichert. Du findest es später auf der Startseite unter „Gespeicherte Sitzungen“.";
+    }
+    $("s-start").hidden = true;
+    $("s-confirm").hidden = false;
+  }
+  $("btn-confirm-no").addEventListener("click", function () {
+    pendingCode = null;
+    $("s-confirm").hidden = true;
+    $("s-start").hidden = false;
+    $("in-code").focus();
+  });
+  $("btn-confirm-yes").addEventListener("click", function () {
+    var code = pendingCode;
+    pendingCode = null;
+    if (!code) return;
     requestWake();
     startSession(code);
   });
@@ -459,6 +599,36 @@
     post: "Abschlussfragebogen",
     end: "Ende",
   };
+  // Kurznamen für die Anzeige in der Admin-Leiste und der Sitzungsliste
+  var ADMIN_LABEL = {
+    start: "Start",
+    pre: "Fragebogen vorher",
+    sit1: "Situation 1",
+    pause1: "STOPP 1",
+    talk1: "Gespräch 1",
+    fb1: "Fragebogen 1",
+    sit2: "Situation 2",
+    pause2: "STOPP 2",
+    talk2: "Gespräch 2",
+    fb2: "Fragebogen 2",
+    done: "Geschafft",
+    post: "Abschlussfragebogen",
+    end: "Ende",
+  };
+  function fmtDur(ms) {
+    var sec = Math.max(0, Math.floor(ms / 1000));
+    return Math.floor(sec / 60) + ":" + ("0" + (sec % 60)).slice(-2);
+  }
+  // Zeile in der Admin-Leiste: Code, aktuelle Seite und wie lange sie schon läuft (nur hier, nie bei der Vp)
+  function adminInfo() {
+    if (!session) return "keine Sitzung";
+    var t = "Code " + session.code + " · " + ADMIN_LABEL[cur().id];
+    if (session.index > 0 && session.index < LAST && session.enteredAt) t += " · " + fmtDur(Date.now() - session.enteredAt);
+    return t;
+  }
+  setInterval(function () {
+    if (admin && session) $("admin-info").textContent = adminInfo();
+  }, 1000);
   var jumpSelect = $("admin-jump");
   STATES.forEach(function (st, i) {
     if (i === 0) return;
@@ -536,9 +706,10 @@
     $("admin").hidden = !admin;
     if (!admin) $("admin-scen").hidden = true;
     if (!admin) return;
-    $("admin-info").textContent = session ? "Code " + session.code + " · " + cur().id : "keine Sitzung";
+    $("admin-info").textContent = adminInfo();
     $("btn-csv").disabled = $("btn-json").disabled = $("btn-reset").disabled = !session;
     jumpSelect.value = session && session.index > 0 ? String(session.index) : "";
+    renderEndSave();
   }
   window.addEventListener("keydown", function (e) {
     if (e.ctrlKey && e.altKey && (e.key === "l" || e.key === "L" || e.code === "KeyL")) {
@@ -553,11 +724,15 @@
   $("btn-json").addEventListener("click", function () {
     downloadLog("json");
   });
+  $("btn-end-save").addEventListener("click", function () {
+    if (session) saveBoth(session.code);
+  });
   $("btn-reset").addEventListener("click", function () {
     if (!session) return;
     if (!window.confirm("Sitzung " + session.code + " zurücksetzen? Fortschritt UND Log werden gelöscht. Bitte vorher das Log herunterladen.")) return;
     lsRemove(kState(session.code));
     lsRemove(kLog(session.code));
+    lsRemove(kSaved(session.code));
     lsRemove(K_ACTIVE);
     session = null;
     window.__noGuard = true;
@@ -632,8 +807,10 @@
     if (stored && validCode(stored.code) && STATES[stored.index]) {
       // Neuladen: im selben Zustand weitermachen
       session = stored;
-      lsSet(K_ACTIVE, session.code);
-      logEntry("neu_geladen");
+      if (session.index !== LAST) {
+        lsSet(K_ACTIVE, session.code);
+        logEntry("neu_geladen");
+      } // eine abgeschlossene Sitzung wird nicht wieder aktiv und bekommt keinen neuen Eintrag
       render();
     } else if (urlOk) {
       startSession(urlCode);

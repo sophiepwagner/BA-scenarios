@@ -26,6 +26,7 @@ body {
   color: var(--ink);
   font-family: var(--sans);
   font-size: 20px; /* Tablet: großzügige Grundschrift */
+  line-height: 1.4;
   /* Kein Zoomen, kein Pull-to-Refresh, kein Textmarkieren, kein Halte-Menü */
   touch-action: manipulation;
   overscroll-behavior: none;
@@ -49,6 +50,12 @@ body.dark {
   background: var(--dark);
   color: var(--dark-ink);
 }
+@media (min-width: 700px) {
+  html,
+  body {
+    font-size: 21px;
+  }
+}
 
 /* ===== Ablauf-Leiste oben: ein Segment pro Abschnitt, aktueller Abschnitt hervorgehoben ===== */
 .steps {
@@ -64,11 +71,15 @@ body.dark {
   display: none;
 }
 .steps li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
   flex: 1 1 0;
   min-width: 0;
-  padding-top: 8px;
-  border-top: 5px solid var(--line);
-  border-radius: 3px;
+  padding: 9px 6px 10px;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
   color: var(--muted);
   font-size: 0.8rem;
   line-height: 1.2;
@@ -76,11 +87,17 @@ body.dark {
   overflow-wrap: anywhere;
 }
 .steps li.done {
-  border-top-color: #b9c7f0;
+  border-color: #b9c7f0;
+  background: var(--tint);
+  color: var(--accent);
+}
+.steps li.done::before {
+  content: "✓";
 }
 .steps li.current {
-  border-top-color: var(--accent);
-  color: var(--ink);
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
   font-weight: 700;
 }
 
@@ -104,10 +121,15 @@ body.dark {
   max-width: 760px;
 }
 h1 {
-  font-size: 2rem;
+  font-size: 2.1rem;
   line-height: 1.2;
   letter-spacing: -0.02em;
   margin: 0 0 20px;
+}
+h2 {
+  font-size: 1.4rem;
+  line-height: 1.25;
+  margin: 0 0 14px;
 }
 p {
   line-height: 1.55;
@@ -126,7 +148,7 @@ p {
 button {
   font: inherit;
   cursor: pointer;
-  border-radius: 10px;
+  border-radius: 14px;
 }
 button:focus-visible,
 input:focus-visible,
@@ -147,6 +169,139 @@ select:focus-visible {
   border: 1px solid var(--accent);
   color: #fff;
 }
+/* Rückmeldung beim Antippen (kein Effekt sonst) */
+.primary:active {
+  background: #1d3699;
+  border-color: #1d3699;
+}
+.secondary {
+  display: block;
+  width: 100%;
+  max-width: 460px;
+  min-height: 60px;
+  margin-top: 14px;
+  padding: 12px 24px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  background: transparent;
+  border: 1.5px solid var(--line);
+  color: var(--ink);
+}
+.secondary:active {
+  background: var(--plate);
+}
+
+/* ===== Karten (Startseite, Bestätigung, Sitzungsliste) ===== */
+.card {
+  margin-bottom: 24px;
+  padding: 32px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  box-shadow: 0 2px 12px rgba(18, 22, 28, 0.06);
+}
+.card h1 {
+  margin-bottom: 6px;
+}
+.card.center .primary,
+.card.center .secondary {
+  margin-left: auto;
+  margin-right: auto;
+}
+.confirm-code {
+  margin: 8px 0 28px;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 3.6rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-align: center;
+  color: var(--ink);
+}
+.warn {
+  margin: 0 0 8px;
+  padding: 12px 16px;
+  background: #fff6dd;
+  border: 1px solid #e8c766;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  color: #6b5200;
+  text-align: left;
+}
+.center {
+  text-align: center;
+}
+
+/* ===== Gespeicherte Sitzungen (Startseite) ===== */
+.sessions h2 {
+  margin-bottom: 10px;
+}
+.sessions ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.sessions li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  padding: 12px 0;
+  border-top: 1px solid var(--plate);
+}
+.sess-info {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+.sess-code {
+  display: block;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.sess-meta {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.badge {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.badge.ok {
+  background: #e3f5e8;
+  color: #1b6b34;
+}
+.badge.warn {
+  background: #fff3cd;
+  color: #7a5b00;
+}
+.sessions li button {
+  min-height: 44px;
+  padding: 8px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: var(--plate);
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+
+/* ===== Endseite: Log sichern (nur Admin) ===== */
+.endsave {
+  max-width: 460px;
+  margin: 40px auto 0;
+  text-align: center;
+}
+.endsave.unsaved {
+  border-color: #e8c766;
+  background: #fffaf0;
+}
+.endsave .primary {
+  margin-left: auto;
+  margin-right: auto;
+}
 
 /* ===== Start (Versuchsleiterin) ===== */
 #start-form label {
@@ -162,7 +317,7 @@ select:focus-visible {
   padding: 12px 16px;
   font: inherit;
   border: 1.5px solid var(--line);
-  border-radius: 10px;
+  border-radius: 14px;
   background: #fff;
   color: var(--ink);
 }
@@ -202,16 +357,39 @@ select:focus-visible {
   text-align: center;
   background: var(--tint);
   border: 4px solid var(--accent);
-  border-radius: 14px;
+  border-radius: 20px;
 }
 .pause-list {
+  list-style: none;
+  counter-reset: schritt;
   margin: 0;
-  padding-left: 32px;
-  font-size: 1.2rem;
-  line-height: 1.6;
+  padding: 0;
+  font-size: 1.15rem;
+  line-height: 1.5;
 }
 .pause-list li {
-  margin-bottom: 14px;
+  counter-increment: schritt;
+  position: relative;
+  margin-bottom: 12px;
+  padding: 18px 22px 18px 76px;
+  background: var(--plate);
+  border-radius: 16px;
+}
+.pause-list li::before {
+  content: counter(schritt);
+  position: absolute;
+  left: 22px;
+  top: 50%;
+  width: 36px;
+  height: 36px;
+  margin-top: -18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
 }
 
 /* ===== Situation und Gegenstände (eigene Seite vor dem Gespräch) ===== */
@@ -240,9 +418,10 @@ select:focus-visible {
 }
 .task {
   background: var(--tint);
-  border-radius: 10px;
-  padding: 16px 20px;
-  margin: 20px 0;
+  border-left: 5px solid var(--accent);
+  border-radius: 6px 14px 14px 6px;
+  padding: 18px 22px;
+  margin: 22px 0;
 }
 .task p {
   margin: 0;
@@ -267,27 +446,28 @@ select:focus-visible {
 .items li {
   display: flex;
   align-items: center;
-  gap: 16px;
-  min-height: 84px;
-  padding: 10px 16px;
+  gap: 18px;
+  min-height: 100px;
+  padding: 12px 20px;
   background: var(--plate);
-  border-radius: 8px;
+  border: 1px solid #e3e6eb;
+  border-radius: 16px;
 }
 .icon {
-  flex: 0 0 60px;
-  width: 60px;
-  height: 60px;
+  flex: 0 0 72px;
+  width: 72px;
+  height: 72px;
   color: var(--ink);
 }
 .icon svg {
-  width: 60px;
-  height: 60px;
+  width: 72px;
+  height: 72px;
   display: block;
 }
 .name {
   display: block;
   font-weight: 700;
-  font-size: 1.05rem;
+  font-size: 1.15rem;
 }
 .note {
   display: block;
@@ -314,6 +494,24 @@ select:focus-visible {
 .k {
   fill: currentColor;
   stroke: none;
+}
+
+/* ===== Geschafft und Ende: zentriert, ruhig ===== */
+#s-done,
+#s-end {
+  padding-top: 72px;
+}
+#s-done h1,
+#s-end h1 {
+  font-size: 2.6rem;
+  margin-bottom: 28px;
+}
+#s-done p {
+  font-size: 1.25rem;
+}
+#s-done .primary {
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* ===== Gespräch läuft: dunkel, kein Timer, keine Animation ===== */

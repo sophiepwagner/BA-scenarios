@@ -17,14 +17,32 @@
     <main id="app">
       <!-- 1. Start: nur für die Versuchsleiterin -->
       <section id="s-start" class="screen narrow" hidden>
-        <h1>Studienstart</h1>
-        <p class="hint">Nur für die Versuchsleiterin.</p>
-        <form id="start-form" autocomplete="off" novalidate>
-          <label for="in-code">Code</label>
-          <input id="in-code" name="code" type="text" maxlength="5" inputmode="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="z. B. b103a" />
-          <p id="start-error" class="error" role="alert" hidden></p>
-          <button type="submit" class="primary">Starten</button>
-        </form>
+        <div class="card">
+          <h1>Studienstart</h1>
+          <p class="hint">Nur für die Versuchsleiterin.</p>
+          <form id="start-form" autocomplete="off" novalidate>
+            <label for="in-code">Code der Versuchsperson</label>
+            <input id="in-code" name="code" type="text" maxlength="5" inputmode="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="z. B. b103a" />
+            <p id="start-error" class="error" role="alert" hidden></p>
+            <button type="submit" class="primary">Weiter</button>
+          </form>
+        </div>
+        <!-- Gespeicherte Sitzungen: Logs lassen sich hier auch nach dem Ende noch herunterladen -->
+        <div id="sessions" class="card sessions" hidden>
+          <h2>Gespeicherte Sitzungen</h2>
+          <ul id="sessions-list"></ul>
+        </div>
+      </section>
+
+      <!-- 1b. Code-Bestätigung (Eingabe von Hand), damit kein Tippfehler eine Sitzung mit falschem Code startet -->
+      <section id="s-confirm" class="screen narrow" hidden>
+        <div class="card center">
+          <p class="hint">Stimmt dieser Code?</p>
+          <p id="confirm-code" class="confirm-code"></p>
+          <p id="confirm-warn" class="warn" hidden></p>
+          <button type="button" id="btn-confirm-yes" class="primary">Ja, Sitzung starten</button>
+          <button type="button" id="btn-confirm-no" class="secondary">Zurück</button>
+        </div>
       </section>
 
       <!-- 2./5./8./10. Fragebögen (Tally). Der iframe wird von app.js je Zustand gebaut. -->
@@ -80,7 +98,7 @@
       </section>
 
       <!-- 9. Zwischenseite nach beiden Gesprächen -->
-      <section id="s-done" class="screen narrow" hidden>
+      <section id="s-done" class="screen narrow center" hidden>
         <h1>✅ Geschafft – die Gespräche sind beendet.</h1>
         <p>Sag deiner Gesprächspartnerin kurz Bescheid.</p>
         <p>Du kannst jetzt in Ruhe den Brustgurt abnehmen.</p>
@@ -89,8 +107,14 @@
       </section>
 
       <!-- 11. Ende -->
-      <section id="s-end" class="screen narrow" hidden>
+      <section id="s-end" class="screen narrow center" hidden>
         <h1>Vielen Dank für deine Teilnahme! 🎉</h1>
+        <!-- Nur im Admin-Modus sichtbar: Log sichern, bevor das Tablet weitergegeben wird -->
+        <div id="end-save" class="card endsave" hidden>
+          <p><strong>Log dieser Sitzung speichern</strong></p>
+          <p id="end-save-status" class="hint"></p>
+          <button type="button" id="btn-end-save" class="primary">Log speichern (CSV + JSON)</button>
+        </div>
       </section>
     </main>
 

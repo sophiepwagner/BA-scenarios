@@ -48,9 +48,18 @@ Die ID steht in der Tally-URL (`tally.so/r/<ID>`). In den Formularen müssen **H
 - **Über die URL (empfohlen):** `…/?code=b103a`
   - `code`: 5 Zeichen, klein (Buchstaben/Ziffern)
   - Die Startseite wird übersprungen, `code` verschwindet danach aus der Adresszeile.
-- **Von Hand:** Seite ohne Parameter öffnen, Code eintragen, „Starten“.
+- **Von Hand:** Seite ohne Parameter öffnen, Code eintragen, „Weiter“. Danach erscheint der Code groß mit der Frage „Stimmt dieser Code?“. Erst „Ja, Sitzung starten“ legt die Sitzung an, „Zurück“ erlaubt eine Korrektur. Ist das Log einer früheren Sitzung noch nicht gespeichert, steht dort ein Hinweis.
 
 Der Fortschritt liegt im `localStorage` des Tablets. Ein Neuladen macht im selben Zustand weiter. Ein neuer Code startet eine neue Sitzung; Fortschritt und Log der alten Sitzung bleiben unter ihrem Code gespeichert.
+
+**Nach dem Ende** gilt die Sitzung nicht mehr als aktiv: Öffnest du die Seite danach ohne `?code=…`, erscheint wieder die Startseite (und nicht die Endseite der letzten Person).
+
+## Logs sichern
+
+Die Logs liegen nur im Speicher des Tablets. Sie enthalten keine Bedingung und keine Reihenfolge, nur Code, Zustand, Gesprächsnummer und Zeitstempel.
+
+- **Startseite → „Gespeicherte Sitzungen“:** Alle Sitzungen mit ihrem Stand und einem Status „Log gespeichert“ bzw. „**Log noch nicht gespeichert**“, jeweils mit Knöpfen für CSV und JSON. Das funktioniert auch nach dem Ende.
+- **Endseite im Admin-Modus:** Ein Kasten „Log speichern (CSV + JSON)“ mit Statuszeile.
 
 ## Gespräch beenden
 
@@ -61,11 +70,12 @@ Auf dem dunklen Bildschirm „Gespräch läuft …“ muss „Gespräch ist been
 - Sichtbar mit `?admin=1` (z. B. `…/?admin=1`) oder per Tastenkombination `Strg+Alt+L`.
 - **Log herunterladen**: CSV und JSON, Dateiname `log_<code>_<datum>.csv`. Spalten: `code, zustand, gespraech, ts_iso` (UTC, ms), `ts_epoch_ms, ereignis`. Die Reihenfolge ist nicht enthalten und wird bei der Auswertung über den Code ergänzt.
 - **Zum Testen springen:** Mit „‹ Zurück“, „Weiter ›“ und der Auswahl in der Admin-Leiste kommst du zu jeder Seite (z. B. direkt zur Situation-Seite, zur STOPP-Seite oder zum dunklen Gespräch), ohne Fragebögen auszufüllen. Ohne laufende Sitzung wird dafür eine Testsitzung mit dem Code `test0` angelegt. Jeder Sprung steht im Log als `sprung_admin`.
+- **Zeit pro Seite:** Die Admin-Leiste zeigt neben dem Code die aktuelle Seite und wie lange sie läuft (z. B. „Gespräch 1 · 5:12“). Das sieht nur der Admin-Modus, die Vp sieht nirgends einen Timer.
 - **Szenarien:** Der Knopf „Szenarien“ zeigt beide Szenarien mit Beschreibung und den Gegenständen von Vp und Gesprächspartnerin (nur Admin, als Nachschlagewerk).
 - **Zurücksetzen**: löscht Fortschritt und Log der aktuellen Sitzung (mit Rückfrage, vorher Log herunterladen).
 - Den Admin-Modus nicht auf dem Tablet öffnen, solange die Vp davor sitzt.
 
-Zustände im Log: `start, pre, sit1, pause1, talk1, fb1, sit2, pause2, talk2, fb2, done, post, end`. Ereignisse: `sitzung_gestartet`, `wechsel`, `form_abgesendet`, `weiter_manuell`, `neu_geladen`.
+Zustände im Log: `start, pre, sit1, pause1, talk1, fb1, sit2, pause2, talk2, fb2, done, post, end`. Ereignisse: `sitzung_gestartet`, `wechsel`, `form_abgesendet`, `weiter_manuell`, `neu_geladen`, `sprung_admin`.
 
 ## Tablet-Hinweise
 
