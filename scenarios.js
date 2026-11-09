@@ -46,15 +46,15 @@ window.SCENARIOS = {
       "Euer Auto ist auf einer einsamen Wüstenstraße liegengeblieben und lässt sich nicht reparieren. Ihr seid unverletzt. Die nächste Straße mit Verkehr ist etwa 40 Kilometer entfernt, es ist früher Nachmittag und 38 Grad heiß. Ihr könnt beim Auto bleiben oder losgehen.",
     items: {
       a: [
-        { icon: "mirror", name: "Signalspiegel", note: "handtellergroß, spiegelt stark" },
+        { icon: "mirror", name: "Signalspiegel", note: "handtellergroß" },
         { icon: "sunhat", name: "Sonnenhut", note: "breite Krempe" },
         { icon: "tarp", name: "Zeltplane", note: "3 x 3 Meter" },
-        { icon: "flashlight", name: "Taschenlampe", note: "Batterien fast leer" },
+        { icon: "flashlight", name: "Taschenlampe", note: "" },
       ],
       b: [
         { icon: "bottles", name: "Wasserflaschen", note: "4 Flaschen à 1 Liter" },
-        { icon: "radio", name: "Funkgerät", note: "kein Empfang in der Wüste" },
-        { icon: "sweater", name: "Wollpullover", note: "nachts nur etwa 5 Grad" },
+        { icon: "radio", name: "Funkgerät", note: "" },
+        { icon: "sweater", name: "Wollpullover", note: "" },
         { icon: "dates", name: "Datteln", note: "2 kg, getrocknet" },
       ],
     },
@@ -65,14 +65,14 @@ window.SCENARIOS = {
       "Ein Schneesturm hat euch in einer abgelegenen Berghütte eingeschlossen. Die Straße ist unpassierbar, die Rettung kommt voraussichtlich in drei Tagen. Die Hütte ist ausgekühlt, draußen sind es minus zehn Grad. Ihr habt nur das, was ihr bei euch habt.",
     items: {
       a: [
-        { icon: "woodpile", name: "Brennholz", note: "reicht für eine Nacht" },
-        { icon: "stove", name: "Gaskocher", note: "Kartusche fast leer" },
-        { icon: "sleepingbag", name: "Schlafsäcke", note: "2 Stück, bis minus 5 Grad" },
+        { icon: "woodpile", name: "Brennholz", note: "" },
+        { icon: "stove", name: "Gaskocher", note: "" },
+        { icon: "sleepingbag", name: "Schlafsäcke", note: "2 Stück" },
         { icon: "candles", name: "Kerzen", note: "10 Stück" },
       ],
       b: [
-        { icon: "noodles", name: "Nudeln", note: "2 kg, brauchen heißes Wasser" },
-        { icon: "powerbank", name: "Powerbank", note: "voll, aber kein Handynetz" },
+        { icon: "noodles", name: "Nudeln", note: "2 kg" },
+        { icon: "powerbank", name: "Powerbank", note: "" },
         { icon: "snowshoes", name: "Schneeschuhe", note: "ein Paar" },
         { icon: "axe", name: "Axt", note: "scharf, schwerer Griff" },
       ],

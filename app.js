@@ -2,6 +2,8 @@
 // Reines Vanilla-JS, kein Build. Diese Seite kennt die Bedingung (Teleprompter/Webcam) und die
 // Reihenfolge gar nicht: Die Verteilung übernimmt ein separates Skript, die Zuordnung zum Code
 // wird erst bei der Auswertung ergänzt. Gespräch 1 und 2 haben denselben Fragebogen.
+// Den persönlichen Code gibt die Versuchsperson selbst ein. Weil er nicht eindeutig sein muss,
+// läuft jede Sitzung intern unter einer eigenen Sitzungs-ID (sid).
 (function () {
   "use strict";
 
@@ -39,7 +41,7 @@
   var LAST = STATES.length - 1;
 
   // Ablauf-Leiste oben: Abschnitte, in die die Zustände gruppiert werden
-  var STEPS = ["Fragebogen vorher", "Gespräch 1", "Gespräch 2", "Abschluss", "Ende"];
+  var STEPS = ["Start", "Gespräch 1", "Gespräch 2", "Rückblick", "Fertig"];
   var STEP_OF = { pre: 0, sit1: 1, pause1: 1, talk1: 1, fb1: 1, sit2: 2, pause2: 2, talk2: 2, fb2: 2, done: 3, post: 3, end: 4 };
 
   function $(id) {
@@ -69,19 +71,23 @@
       localStorage.removeItem(key);
     } catch (e) {}
   }
-  var K_ACTIVE = "studie:active";
-  function kState(code) {
-    return "studie:" + code + ":state";
+  var K_ACTIVE = "studie:active"; // Sitzungs-ID der laufenden Sitzung
+  function kState(sid) {
+    return "studie:" + sid + ":state";
   }
-  function kLog(code) {
-    return "studie:" + code + ":log";
+  function kLog(sid) {
+    return "studie:" + sid + ":log";
   }
-  function kSaved(code) {
-    return "studie:" + code + ":saved"; // Zeitpunkt, zu dem das Log heruntergeladen wurde
+  function kSaved(sid) {
+    return "studie:" + sid + ":saved"; // Zeitpunkt, zu dem das Log heruntergeladen wurde
+  }
+  // Eindeutige Sitzungs-ID (Zeitstempel + Zufall), unabhängig vom persönlichen Code
+  function newSid() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
   }
 
   // ---------- Zustand ----------
-  var session = null; // { code, index }
+  var session = null; // { sid, code, index, enteredAt }
   var advanceTimer = null; // Timer für das automatische Weitergehen nach dem Absenden
   var iframeTimer = null; // Timer für den Lade-Fallback
   var submittedFor = -1; // Index, für den "FormSubmitted" schon verarbeitet wurde
@@ -99,8 +105,9 @@
     if (!session) return;
     var st = STATES[index === undefined ? session.index : index];
     var now = new Date();
-    var log = lsGet(kLog(session.code)) || [];
+    var log = lsGet(kLog(session.sid)) || [];
     log.push({
+      sitzung: session.sid,
       code: session.code,
       zustand: st.id,
       gespraech: st.g || "",
@@ -108,9 +115,9 @@
       ts_epoch_ms: now.getTime(),
       ereignis: ereignis,
     });
-    lsSet(kLog(session.code), log);
+    lsSet(kLog(session.sid), log);
   }
-  var LOG_COLS = ["code", "zustand", "gespraech", "ts_iso", "ts_epoch_ms", "ereignis"];
+  var LOG_COLS = ["sitzung", "code", "zustand", "gespraech", "ts_iso", "ts_epoch_ms", "ereignis"];
   function toCsv(log) {
     var rows = [LOG_COLS.join(",")];
     log.forEach(function (e) {
@@ -136,55 +143,63 @@
       URL.revokeObjectURL(url);
     }, 2000);
   }
+  // Code einer gespeicherten Sitzung (aus dem Stand, sonst aus dem ersten Logeintrag)
+  function codeOf(sid) {
+    var st = lsGet(kState(sid));
+    if (st && st.code) return st.code;
+    var log = lsGet(kLog(sid)) || [];
+    return log.length ? log[0].code : sid;
+  }
   // Log einer Sitzung herunterladen und vermerken, dass es gesichert wurde
-  function downloadLogFor(code, kind) {
-    var log = lsGet(kLog(code)) || [];
-    var base = "log_" + code + "_" + new Date().toISOString().slice(0, 10);
+  function downloadLogFor(sid, kind) {
+    var log = lsGet(kLog(sid)) || [];
+    var base = "log_" + codeOf(sid) + "_" + new Date().toISOString().slice(0, 10);
     if (kind === "csv") download(base + ".csv", toCsv(log), "text/csv;charset=utf-8");
     else download(base + ".json", JSON.stringify(log, null, 2), "application/json");
-    lsSet(kSaved(code), Date.now());
+    lsSet(kSaved(sid), Date.now());
     renderSessions();
     renderEndSave();
   }
   function downloadLog(kind) {
-    if (session) downloadLogFor(session.code, kind);
+    if (session) downloadLogFor(session.sid, kind);
   }
   // CSV und JSON nacheinander (mit kurzer Pause, damit der Browser beide Downloads zulässt)
-  function saveBoth(code) {
-    downloadLogFor(code, "csv");
+  function saveBoth(sid) {
+    downloadLogFor(sid, "csv");
     setTimeout(function () {
-      downloadLogFor(code, "json");
+      downloadLogFor(sid, "json");
     }, 400);
   }
 
-  // ---------- Gespeicherte Sitzungen (Startseite) ----------
-  // Alle Codes, zu denen ein Log im Speicher liegt
-  function storedCodes() {
-    var codes = {};
+  // ---------- Gespeicherte Sitzungen (Startseite, nur im Admin-Modus) ----------
+  // Alle Sitzungs-IDs, zu denen ein Log im Speicher liegt
+  function storedSids() {
+    var ids = {};
     function add(k) {
-      var m = /^studie:([a-z0-9]{5}):log$/.exec(k);
-      if (m) codes[m[1]] = true;
+      var m = /^studie:([a-z0-9]{5,}):log$/.exec(k);
+      if (m) ids[m[1]] = true;
     }
     try {
       for (var i = 0; i < localStorage.length; i++) add(localStorage.key(i));
     } catch (e) {}
     Object.keys(mem).forEach(add);
-    return Object.keys(codes);
+    return Object.keys(ids);
   }
   function clock(ts) {
     return new Date(ts).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
   }
   function sessionRows() {
-    return storedCodes()
-      .map(function (code) {
-        var log = lsGet(kLog(code)) || [];
-        var st = lsGet(kState(code));
+    return storedSids()
+      .map(function (sid) {
+        var log = lsGet(kLog(sid)) || [];
+        var st = lsGet(kState(sid));
         return {
-          code: code,
+          sid: sid,
+          code: codeOf(sid),
           n: log.length,
           last: log.length ? log[log.length - 1].ts_epoch_ms : 0,
           idx: st ? st.index : 0,
-          saved: lsGet(kSaved(code)),
+          saved: lsGet(kSaved(sid)),
         };
       })
       .filter(function (r) {
@@ -196,9 +211,11 @@
   }
   function renderSessions() {
     var rows = sessionRows();
-    $("sessions").hidden = !rows.length;
+    // Die Codes anderer Personen sieht nur der Admin-Modus, nie die Versuchsperson
+    $("sessions").hidden = !admin || !rows.length;
     var ul = $("sessions-list");
     ul.innerHTML = "";
+    if (!admin) return;
     rows.forEach(function (r) {
       var li = document.createElement("li");
       var info = document.createElement("div");
@@ -222,7 +239,7 @@
         b.type = "button";
         b.textContent = kind.toUpperCase();
         b.addEventListener("click", function () {
-          downloadLogFor(r.code, kind);
+          downloadLogFor(r.sid, kind);
         });
         li.appendChild(b);
       });
@@ -235,7 +252,7 @@
     var show = admin && session && cur().id === "end";
     box.hidden = !show;
     if (!show) return;
-    var saved = lsGet(kSaved(session.code));
+    var saved = lsGet(kSaved(session.sid));
     $("end-save-status").textContent = saved ? "Gespeichert um " + clock(saved) + " Uhr." : "Noch nicht gespeichert.";
     box.classList.toggle("unsaved", !saved);
   }
@@ -251,10 +268,10 @@
     clearTimers();
     session.index = index;
     session.enteredAt = Date.now(); // Beginn dieser Seite (Zeitanzeige im Admin-Bereich)
-    lsSet(kState(session.code), session);
+    lsSet(kState(session.sid), session);
     // Am Ende ist die Sitzung nicht mehr "aktiv": das nächste Öffnen zeigt wieder die Startseite
     if (index === LAST) lsRemove(K_ACTIVE);
-    else lsSet(K_ACTIVE, session.code);
+    else lsSet(K_ACTIVE, session.sid);
     logEntry(ereignis || "wechsel");
     render();
   }
@@ -302,6 +319,12 @@
     mine.forEach(function (it) {
       list.appendChild(itemEl(it));
     });
+    // Admin: zusätzlich die Gegenstände der Gesprächspartnerin (Sichtbarkeit steuert renderAdmin)
+    var listA = $("sc-items-a");
+    listA.innerHTML = "";
+    sc.items.a.forEach(function (it) {
+      listA.appendChild(itemEl(it));
+    });
   }
   // Ein Gegenstand als Listeneintrag (Icon, Name, Hinweis)
   function itemEl(it) {
@@ -347,6 +370,8 @@
   // ---------- Tally ----------
   function tallyUrl(st) {
     var q = ["alignLeft=1", "hideTitle=1", "transparentBackground=1", "dynamicHeight=1", "code=" + encodeURIComponent(session.code)];
+    // Optionales Hidden Field "sitzung": eindeutige ID dieser Sitzung (falls zwei Personen denselben Code haben)
+    q.push("sitzung=" + encodeURIComponent(session.sid));
     // Nur der Gespräch-Fragebogen bekommt zusätzlich die Gesprächsnummer
     if (st.form === "gespraech") q.push("gespraech=" + st.g);
     return TALLY_EMBED + encodeURIComponent(TALLY[st.form]) + "?" + q.join("&");
@@ -458,11 +483,11 @@
     }, ADVANCE_MS);
   });
 
-  // ---------- Start (Versuchsleiterin) ----------
+  // ---------- Start: die Versuchsperson gibt ihren persönlichen Code ein ----------
   function startSession(code) {
-    session = { code: code, index: 0 };
-    lsSet(K_ACTIVE, code);
-    lsSet(kState(code), session);
+    session = { sid: newSid(), code: code, index: 0 };
+    lsSet(K_ACTIVE, session.sid);
+    lsSet(kState(session.sid), session);
     logEntry("sitzung_gestartet", 0);
     go(1);
   }
@@ -475,27 +500,25 @@
     var err = $("start-error");
     err.hidden = true;
     if (!validCode(code)) {
-      err.textContent = "Der Code muss aus genau 5 Zeichen bestehen (Kleinbuchstaben und Ziffern).";
-      err.hidden = false;
-      return;
-    }
-    if (lsGet(kState(code))) {
-      err.textContent = "Für diesen Code gibt es schon eine Sitzung. Zum Neustart im Admin-Bereich zurücksetzen.";
+      err.textContent = "Der Code muss aus genau 5 Zeichen bestehen (Buchstaben und Ziffern).";
       err.hidden = false;
       return;
     }
     showConfirm(code);
   });
 
-  // Bestätigung vor dem Start (nur bei Eingabe von Hand)
+  // Bestätigung vor dem Start, damit kein Tippfehler im Code stehen bleibt
   var pendingCode = null;
   function showConfirm(code) {
     pendingCode = code;
     $("confirm-code").textContent = code;
+    // Hinweis auf ungespeicherte Logs nur im Admin-Modus (die Vp soll keine fremden Codes sehen)
     var warn = $("confirm-warn");
-    var open = sessionRows().filter(function (r) {
-      return r.code !== "test0" && !r.saved;
-    });
+    var open = admin
+      ? sessionRows().filter(function (r) {
+          return r.code !== "test0" && !r.saved;
+        })
+      : [];
     warn.hidden = !open.length;
     if (open.length) {
       warn.textContent =
@@ -641,9 +664,10 @@
   function jumpTo(index) {
     if (!session) {
       var existing = lsGet(kState("test0"));
-      session = existing || { code: "test0", index: 0 };
-      lsSet(K_ACTIVE, session.code);
-      if (!existing) lsSet(kState(session.code), session);
+      session = existing || { sid: "test0", code: "test0", index: 0 };
+      session.sid = "test0";
+      lsSet(K_ACTIVE, session.sid);
+      if (!existing) lsSet(kState(session.sid), session);
     }
     if (index < 1 || index > LAST) return;
     requestWake();
@@ -704,9 +728,14 @@
   });
   function renderAdmin() {
     $("admin").hidden = !admin;
+    $("sc-admin").hidden = !admin;
     if (!admin) $("admin-scen").hidden = true;
-    if (!admin) return;
+    if (!admin) {
+      if (cur().id === "start") renderSessions();
+      return;
+    }
     $("admin-info").textContent = adminInfo();
+    if (cur().id === "start") renderSessions();
     $("btn-csv").disabled = $("btn-json").disabled = $("btn-reset").disabled = !session;
     jumpSelect.value = session && session.index > 0 ? String(session.index) : "";
     renderEndSave();
@@ -725,14 +754,14 @@
     downloadLog("json");
   });
   $("btn-end-save").addEventListener("click", function () {
-    if (session) saveBoth(session.code);
+    if (session) saveBoth(session.sid);
   });
   $("btn-reset").addEventListener("click", function () {
     if (!session) return;
     if (!window.confirm("Sitzung " + session.code + " zurücksetzen? Fortschritt UND Log werden gelöscht. Bitte vorher das Log herunterladen.")) return;
-    lsRemove(kState(session.code));
-    lsRemove(kLog(session.code));
-    lsRemove(kSaved(session.code));
+    lsRemove(kState(session.sid));
+    lsRemove(kLog(session.sid));
+    lsRemove(kSaved(session.sid));
     lsRemove(K_ACTIVE);
     session = null;
     window.__noGuard = true;
@@ -790,32 +819,17 @@
   // ---------- Beim Laden ----------
   document.title = "Studie";
   (function init() {
-    var urlCode = (params.get("code") || "").toLowerCase();
-    var urlOk = validCode(urlCode);
-
-    // Code aus der Adresszeile entfernen (Fortschritt liegt im Speicher)
-    if (params.has("code")) {
-      params.delete("code");
-      var qs = params.toString();
-      try {
-        history.replaceState(null, "", location.pathname + (qs ? "?" + qs : ""));
-      } catch (e) {}
-    }
-
-    var code = urlOk ? urlCode : lsGet(K_ACTIVE);
-    var stored = code ? lsGet(kState(code)) : null;
+    // Laufende Sitzung fortsetzen (Neuladen), sonst Startseite. Fertige Sitzungen werden nicht wieder aktiv.
+    var sid = lsGet(K_ACTIVE);
+    var stored = sid ? lsGet(kState(sid)) : null;
     if (stored && validCode(stored.code) && STATES[stored.index]) {
-      // Neuladen: im selben Zustand weitermachen
       session = stored;
+      session.sid = session.sid || sid; // ältere Stände hatten keine eigene ID
       if (session.index !== LAST) {
-        lsSet(K_ACTIVE, session.code);
+        lsSet(K_ACTIVE, session.sid);
         logEntry("neu_geladen");
-      } // eine abgeschlossene Sitzung wird nicht wieder aktiv und bekommt keinen neuen Eintrag
-      render();
-    } else if (urlOk) {
-      startSession(urlCode);
-    } else {
-      render();
+      }
     }
+    render();
   })();
 })();

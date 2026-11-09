@@ -15,19 +15,20 @@
     <ol id="steps" class="steps" aria-label="Ablauf" hidden></ol>
 
     <main id="app">
-      <!-- 1. Start: nur für die Versuchsleiterin -->
+      <!-- 1. Start: die Versuchsperson gibt ihren persönlichen Code ein -->
       <section id="s-start" class="screen narrow" hidden>
         <div class="card">
-          <h1>Studienstart</h1>
-          <p class="hint">Nur für die Versuchsleiterin.</p>
+          <h1>Willkommen</h1>
+          <p class="lead">Schön, dass du dabei bist. Bitte gib zuerst deinen persönlichen Code ein.</p>
           <form id="start-form" autocomplete="off" novalidate>
-            <label for="in-code">Code der Versuchsperson</label>
-            <input id="in-code" name="code" type="text" maxlength="5" inputmode="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="z. B. b103a" />
+            <label for="in-code">Dein persönlicher Code</label>
+            <input id="in-code" name="code" type="text" maxlength="5" inputmode="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="5 Zeichen" />
+            <p class="hint">Er besteht aus 5 Zeichen (Buchstaben und Ziffern).</p>
             <p id="start-error" class="error" role="alert" hidden></p>
             <button type="submit" class="primary">Weiter</button>
           </form>
         </div>
-        <!-- Gespeicherte Sitzungen: Logs lassen sich hier auch nach dem Ende noch herunterladen -->
+        <!-- Nur im Admin-Modus: gespeicherte Sitzungen, Logs lassen sich hier auch nach dem Ende noch herunterladen -->
         <div id="sessions" class="card sessions" hidden>
           <h2>Gespeicherte Sitzungen</h2>
           <ul id="sessions-list"></ul>
@@ -37,11 +38,11 @@
       <!-- 1b. Code-Bestätigung (Eingabe von Hand), damit kein Tippfehler eine Sitzung mit falschem Code startet -->
       <section id="s-confirm" class="screen narrow" hidden>
         <div class="card center">
-          <p class="hint">Stimmt dieser Code?</p>
+          <p class="hint">Stimmt dein Code?</p>
           <p id="confirm-code" class="confirm-code"></p>
           <p id="confirm-warn" class="warn" hidden></p>
-          <button type="button" id="btn-confirm-yes" class="primary">Ja, Sitzung starten</button>
-          <button type="button" id="btn-confirm-no" class="secondary">Zurück</button>
+          <button type="button" id="btn-confirm-yes" class="primary">Ja, das stimmt</button>
+          <button type="button" id="btn-confirm-no" class="secondary">Nein, zurück</button>
         </div>
       </section>
 
@@ -66,7 +67,13 @@
         <p id="sc-intro" class="lead"></p>
         <div class="task"><p id="sc-task"></p></div>
         <h2>Deine Gegenstände</h2>
-        <ul id="sc-items" class="items"></ul>
+        <ul id="sc-items" class="items big"></ul>
+        <!-- Nur im Admin-Modus: die Gegenstände der Gesprächspartnerin (für dich, die Vp sieht das nie) -->
+        <div id="sc-admin" class="sc-admin" hidden>
+          <h2>Deine Gegenstände (Gesprächspartnerin)</h2>
+          <p class="hint">Nur im Admin-Modus sichtbar, nicht für die Versuchsperson.</p>
+          <ul id="sc-items-a" class="items big"></ul>
+        </div>
         <p class="hint">Nimm dir Zeit und lies alles in Ruhe durch. Wenn du bereit bist, tippe auf „Weiter“. Danach sind die Gegenstände nicht mehr auf dem Tablet zu sehen.</p>
         <button type="button" id="btn-sit" class="primary">Weiter</button>
       </section>

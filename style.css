@@ -71,15 +71,11 @@ body.dark {
   display: none;
 }
 .steps li {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
   flex: 1 1 0;
   min-width: 0;
-  padding: 9px 6px 10px;
-  border: 1.5px solid var(--line);
-  border-radius: 999px;
+  padding-top: 8px;
+  border-top: 5px solid var(--line);
+  border-radius: 3px;
   color: var(--muted);
   font-size: 0.8rem;
   line-height: 1.2;
@@ -87,17 +83,11 @@ body.dark {
   overflow-wrap: anywhere;
 }
 .steps li.done {
-  border-color: #b9c7f0;
-  background: var(--tint);
-  color: var(--accent);
-}
-.steps li.done::before {
-  content: "✓";
+  border-top-color: #b9c7f0;
 }
 .steps li.current {
-  border-color: var(--accent);
-  background: var(--accent);
-  color: #fff;
+  border-top-color: var(--accent);
+  color: var(--ink);
   font-weight: 700;
 }
 
@@ -207,6 +197,11 @@ select:focus-visible {
 .card.center .secondary {
   margin-left: auto;
   margin-right: auto;
+}
+.card .lead {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+  color: var(--muted);
 }
 .confirm-code {
   margin: 8px 0 28px;
@@ -429,10 +424,51 @@ select:focus-visible {
 .sit .hint {
   margin-top: 22px;
 }
-@media (min-width: 700px) {
-  .sit .items {
-    grid-template-columns: 1fr 1fr;
+/* Situation-Seite: große Karten (Bild oben, Text darunter), damit man die Gegenstände gut erkennt */
+.items.big {
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.items.big li {
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 18px 14px 16px;
+  text-align: center;
+}
+.items.big .icon {
+  flex: 0 0 auto;
+  width: 150px;
+  height: 150px;
+}
+.items.big .icon svg {
+  width: 150px;
+  height: 150px;
+}
+@media (min-width: 900px) {
+  .items.big {
+    grid-template-columns: repeat(4, 1fr);
   }
+  .items.big .icon,
+  .items.big .icon svg {
+    width: 160px;
+    height: 160px;
+  }
+}
+
+/* Admin: Gegenstände der Gesprächspartnerin unter denen der Vp, deutlich abgesetzt */
+.sc-admin {
+  margin-top: 36px;
+  padding: 20px 20px 8px;
+  border: 2px dashed #e8c766;
+  border-radius: 18px;
+  background: #fffaf0;
+}
+.sc-admin h2 {
+  margin-top: 0;
+}
+.sc-admin[hidden] {
+  display: none;
 }
 
 /* ===== Liste der Gegenstände ===== */
@@ -447,21 +483,21 @@ select:focus-visible {
   display: flex;
   align-items: center;
   gap: 18px;
-  min-height: 100px;
+  min-height: 116px;
   padding: 12px 20px;
   background: var(--plate);
   border: 1px solid #e3e6eb;
   border-radius: 16px;
 }
 .icon {
-  flex: 0 0 72px;
-  width: 72px;
-  height: 72px;
+  flex: 0 0 88px;
+  width: 88px;
+  height: 88px;
   color: var(--ink);
 }
 .icon svg {
-  width: 72px;
-  height: 72px;
+  width: 88px;
+  height: 88px;
   display: block;
 }
 .name {
