@@ -1,82 +1,193 @@
 # Studienablauf auf dem Tablet
 
-Kleine Seite, die Versuchspersonen (Vp) auf einem Tablet durch die Studie führt: Fragebogen vorher → Gespräch 1 → Fragebogen → Gespräch 2 → Fragebogen → Zwischenseite (Brustgurt) → Abschlussfragebogen → Ende. Die Fragebögen sind Tally-Formulare, die per iframe eingebettet werden. Reines HTML, CSS und JavaScript, kein Build-Schritt.
+Eine kleine statische Website (reines HTML, CSS und JavaScript, **kein Build, kein Backend**), die Versuchspersonen (Vp) in einer Studie zu Zoom-Gesprächen durch den gesamten Ablauf führt: Fragebögen, zwei Gespräche mit je einer Aufgabe und einen Abschluss. Sie läuft auf einem Tablet neben dem Zoom-Monitor. Die Vp bedient nur das Tablet und wechselt nie den Tab. Die Fragebögen sind Tally-Formulare, die per iframe eingebettet sind.
 
-Die Seite kennt **weder die Bedingung (Teleprompter/Webcam) noch die Reihenfolge**. Die Verteilung übernimmt ein separates Skript, die Zuordnung `code → Reihenfolge` wird erst bei der Auswertung ergänzt. So weiß die Versuchsleiterin während der Sitzung nicht, welche Bedingung gerade läuft.
+## Inhalt
 
-Vor jedem Gespräch gibt es eine eigene Seite mit Situation, Aufgabe und den 4 Gegenständen der Vp („Weiter“ geht zur STOPP-Seite). Gespräch 1 nutzt das Szenario `desert` (Autopanne in der Wüste), Gespräch 2 `cabin` (Eingeschneite Berghütte). Texte und Gegenstände stehen in `scenarios.js`, die Icons in `icons.js`. Welches Szenario zu welchem Gespräch gehört, steht in `app.js` (`SCENARIO_OF_G`).
+1. [Auf einen Blick](#auf-einen-blick)
+2. [Der Ablauf](#der-ablauf)
+3. [Setup](#setup)
+4. [Eine Sitzung durchführen](#eine-sitzung-durchführen)
+5. [Admin-Modus](#admin-modus)
+6. [Daten und Log](#daten-und-log)
+7. [Anpassen](#anpassen)
+8. [Projektstruktur](#projektstruktur)
+9. [Fehlerbehebung](#fehlerbehebung)
 
-Dateien: `index.html`, `style.css`, `app.js`, `scenarios.js`, `icons.js`. Der Ordner `archiv-szenarien/` enthält die frühere Szenario-Seite (Gegenstände, Peek-Knopf, Fernsteuerung). Sie wird von der neuen Seite nicht verwendet und kann gelöscht werden.
+## Auf einen Blick
 
-## Lokal starten
+- **Wer bedient was:** Die Vp tippt sich allein durch die Seite. Die Versuchsleiterin öffnet die Seite, gibt das Tablet weiter und greift nur im Notfall ein (Admin-Modus).
+- **Bedingung und Reihenfolge kennt die Seite nicht.** Welche Bedingung (Teleprompter oder Webcam) in welchem Gespräch läuft, steuert ein separates Skript. Die Zuordnung `code → Reihenfolge` wird erst bei der Auswertung ergänzt. Die Versuchsleiterin weiß dadurch während der Sitzung nicht, welche Bedingung läuft, und im Log steht sie auch nicht.
+- **Keine Fernsteuerung.** Jedes Tablet läuft für sich, es gibt keine Verbindung zu anderen Geräten.
+- **Kein Tracking.** Die einzige externe Abhängigkeit ist Tally (`tally.so`) für die Fragebögen.
+- **Sprache:** Deutsch, Ansprache „du“, die Gesprächspartnerin heißt „Gesprächspartnerin“.
+
+## Der Ablauf
+
+| # | Seite | Was die Vp sieht und tut | Weiter geht es |
+|---|---|---|---|
+| 1 | **Willkommen** | Gibt ihren persönlichen Code ein (5 Zeichen). | „Weiter“, dann Bestätigung („Stimmt dein Code?“) |
+| 2 | **Fragebogen „Vorher“** (Tally) | Füllt den Fragebogen aus. | automatisch nach dem Absenden |
+| 3 | **Situation und Gegenstände** (Gespräch 1) | Liest Situation, Aufgabe und ihre 4 Gegenstände. | „Weiter“ |
+| 4 | **STOPP-Seite** | Wartet, sagt der Gesprächspartnerin Bescheid, dass sie bereit ist. | „Gespräch beginnen“ |
+| 5 | **Gespräch läuft** (dunkel, kein Timer) | Führt das Gespräch, schaut nicht aufs Tablet. | „Gespräch ist beendet“ 2 Sekunden gedrückt halten |
+| 6 | **Fragebogen zum Gespräch** (Tally, `gespraech=1`) | Füllt den Fragebogen aus. | automatisch nach dem Absenden |
+| 7–10 | dasselbe für **Gespräch 2** (zweites Szenario, `gespraech=2`) | | |
+| 11 | **Geschafft** | Soll den Brustgurt abnehmen. | „Weiter“ |
+| 12 | **Abschlussfragebogen** (Tally) | Füllt den Fragebogen aus. | automatisch nach dem Absenden |
+| 13 | **Ende** | „Vielen Dank für deine Teilnahme!“ | – |
+
+- **Ablauf-Leiste oben:** Fünf Segmente (Start, Gespräch 1, Gespräch 2, Rückblick, Fertig) zeigen, wo die Vp gerade ist. Auf der Startseite und im dunklen Gespräch ist sie ausgeblendet.
+- **Automatisch weiter:** Nach dem Absenden eines Tally-Formulars (Meldung `Tally.FormSubmitted`) geht die Seite nach ca. 1,5 s weiter. Lädt ein Fragebogen nicht (kein Netz, Tally nicht erreichbar), erscheint unten ein kleiner „Weiter“-Knopf.
+- **Gespräch beenden:** Der Knopf muss 2 Sekunden gedrückt werden (Fortschrittsring), damit nichts versehentlich beendet wird.
+- **Szenarien:** Gespräch 1 ist „Autopanne in der Wüste“, Gespräch 2 „Eingeschneite Berghütte“. Jede Person hat 4 von 8 Gegenständen, zusammen wählt man 5 aus. Die Gegenstände der Vp stehen auf der Situation-Seite, die der Gesprächspartnerin nur im Admin-Modus.
+- **Nach dem Ende** gilt die Sitzung nicht mehr als aktiv. Wer die Seite danach öffnet, sieht wieder „Willkommen“ für die nächste Person.
+
+## Setup
+
+### 1. Tally-Formulare vorbereiten
+
+Drei Formulare werden verwendet:
+
+| Zweck | Formular-ID | Hidden Fields |
+|---|---|---|
+| Vorher | `zENN9k` | `code`, optional `sitzung` |
+| Gespräch (wird nach beiden Gesprächen geöffnet) | `QoMe18` | `code`, `gespraech`, optional `sitzung` |
+| Abschluss | `vXrrQD` | `code`, optional `sitzung` |
+
+- In jedem Formular die Hidden Fields mit **genau diesen Namen** anlegen (Tally: Formular bearbeiten → Hidden Fields).
+- `code` ist der persönliche Code der Vp, `gespraech` ist `1` oder `2`.
+- `sitzung` ist eine eindeutige ID, die die Seite pro Durchlauf erzeugt. Sie ist optional, hilft aber, falls zwei Personen denselben Code haben (siehe [Daten und Log](#daten-und-log)).
+- Da die Seite den Code schon als Hidden Field mitgibt, braucht das Formular „Vorher“ keine eigene Frage nach dem Code. Sonst tippt die Vp ihn zweimal.
+- Das Absenden-Event von Tally steuert das automatische Weitergehen. Ein „Vielen Dank“-Text im Formular ist nur kurz sichtbar.
+
+### 2. Formular-IDs eintragen
+
+Die IDs stehen ganz oben in `app.js`:
+
+```js
+var TALLY = {
+  pre: "zENN9k",
+  gespraech: "QoMe18", // wird nach Gespräch 1 und 2 verwendet
+  abschluss: "vXrrQD",
+};
+```
+
+Die ID steht in der Tally-URL (`tally.so/r/<ID>`).
+
+### 3. Lokal testen
+
+Im Projektordner:
 
 ```
 python3 -m http.server 8000
 ```
 
-Dann `http://localhost:8000/` öffnen (am Tablet: `http://<IP-des-Rechners>:8000/`).
+Dann `http://localhost:8000/` öffnen. Am Tablet im selben WLAN: `http://<IP-des-Rechners>:8000/`.
 
-## Auf GitHub Pages deployen
+Zum Durchklicken ohne Fragebögen: Admin-Modus (`http://localhost:8000/?admin=1`) und die Sprung-Auswahl unten links. Achtung: Die Fragebögen sind die echten Formulare, Antworten, die du dort absendest, landen in deinen echten Tally-Daten.
+
+### 4. Auf GitHub Pages veröffentlichen
 
 1. Repository auf GitHub pushen.
 2. *Settings → Pages → Build and deployment*: Quelle „Deploy from a branch“, Branch `main`, Ordner `/ (root)`.
-3. Nach kurzer Zeit ist die Seite unter `https://<nutzer>.github.io/<repo>/` erreichbar. Der Wake Lock (Display bleibt an) braucht HTTPS, das ist dort gegeben.
+3. Nach kurzer Zeit ist die Seite unter `https://<nutzer>.github.io/<repo>/` erreichbar. Wichtig: Diese Adresse (HTTPS) am Tablet verwenden, denn der Wake Lock (Display bleibt an) braucht HTTPS.
 
-## Tally-IDs eintragen
+### 5. Tablet einrichten
 
-In `app.js` ganz oben:
+- **Normalen Browser-Tab nutzen, keinen privaten Modus.** Fortschritt und Log liegen im `localStorage` und gehen im privaten Modus beim Schließen verloren.
+- **Uhrzeit und Zeitzone prüfen** (automatisch einstellen). Das Log speichert die Tablet-Zeit, die du später mit Aufnahmen oder anderen Geräten abgleichst.
+- **Tablet sperren,** damit nichts versehentlich verlassen wird: iPad „Geführter Zugriff“, Android „Bildschirmfixierung“. Das lässt sich nicht aus der Seite heraus lösen.
+- **Töne aus, Helligkeit mittel,** die Seite spielt keine Töne.
+- Seite einmal vom Tablet aus testen, bevor die erste Vp kommt (Fragebögen laden, Halten-Knopf, Display bleibt an).
 
-```js
-var TALLY = {
-  pre: "zENN9k",
-  gespraech: "QoMe18",
-  abschluss: "vXrrQD",
-};
+## Eine Sitzung durchführen
+
+**Vorher**
+1. Seite ohne `?admin=1` öffnen. Es erscheint „Willkommen“.
+2. Das Tablet der Vp geben. Diese gibt ihren persönlichen Code selbst ein, bestätigt ihn und startet damit die Sitzung.
+
+**Während der Sitzung**
+- Die Vp bedient das Tablet allein. Neuladen ist unkritisch: Die Seite macht an derselben Stelle weiter, der Browser warnt vorher.
+- Bei einem Problem (z. B. hängt ein Fragebogen) öffnest du am Tablet `?admin=1` und springst mit „Weiter ›“ zur nächsten Seite. Dann die Vp wieder allein lassen. Den Admin-Modus am besten nicht öffnen, solange die Vp davor sitzt.
+
+**Nachher**
+1. Nach dem Ende `?admin=1` öffnen.
+2. **Log sichern:** Auf der Startseite stehen unter „Gespeicherte Sitzungen“ alle Sitzungen mit dem Status „Log gespeichert“ oder „Log noch nicht gespeichert“, daneben CSV- und JSON-Knöpfe.
+3. Danach kann die nächste Person beginnen.
+
+## Admin-Modus
+
+Aktivieren mit `?admin=1` hinter der Adresse oder mit `Strg+Alt+L` (nur mit Tastatur). Ohne diese Einstellung sieht die Vp keinen dieser Bereiche.
+
+| Bereich | Was er kann |
+|---|---|
+| **Leiste unten links** | ‹ Zurück, Weiter ›, Auswahl zum Springen zu jeder Seite, Zeit auf der aktuellen Seite (z. B. „Gespräch 1 · 5:12“), Log herunterladen (CSV, JSON), Zurücksetzen |
+| **Szenarien** | Übersicht beider Szenarien mit Gegenständen von Vp und Gesprächspartnerin |
+| **Situation-Seiten** | Gelber Kasten mit den Gegenständen der Gesprächspartnerin unter denen der Vp |
+| **Startseite** | Liste „Gespeicherte Sitzungen“ mit Log-Status und Download |
+| **Endseite** | Kasten „Log speichern (CSV + JSON)“ mit Statuszeile |
+
+- **Springen** zu jeder Seite legt ohne laufende Sitzung eine Testsitzung mit dem Code `test0` an. Jeder Sprung steht im Log als `sprung_admin`.
+- **Zurücksetzen** löscht Fortschritt und Log der aktuellen Sitzung (mit Rückfrage). Vorher das Log herunterladen.
+- Die Tablet-Seite der Vp und dein Admin-Fenster sind **nicht verbunden**. Es gibt keine Fernsteuerung.
+
+## Daten und Log
+
+Alles liegt im `localStorage` des Tablets (Schlüssel `studie:<sitzung>:state`, `:log`, `:saved`). Es gibt keinen Server und keine Übertragung. **Die Logs gehen verloren, wenn der Browser-Speicher geleert wird.** Deshalb nach jeder Sitzung sichern.
+
+**Eindeutige Sitzungs-ID:** Persönliche Codes sind nicht eindeutig (z. B. bei Codes aus Anfangsbuchstaben und letzten Ziffern kann es Doppelte geben). Die Seite speichert deshalb alles unter einer zufälligen Sitzungs-ID, die als Hidden Field `sitzung` an Tally geht und im Log steht. So lassen sich auch zwei Personen mit gleichem Code trennen.
+
+**Log-Dateien:** `log_<code>_<datum>.csv` und `.json`. Spalten:
+
+| Spalte | Inhalt |
+|---|---|
+| `sitzung` | eindeutige Sitzungs-ID |
+| `code` | persönlicher Code der Vp |
+| `zustand` | Seite, siehe unten |
+| `gespraech` | `1` oder `2` (leer außerhalb der Gespräche) |
+| `ts_iso` | Zeitstempel, ISO-8601, UTC, mit Millisekunden |
+| `ts_epoch_ms` | derselbe Zeitpunkt als Unix-Zeit in Millisekunden |
+| `ereignis` | `sitzung_gestartet`, `wechsel`, `form_abgesendet`, `weiter_manuell`, `neu_geladen`, `sprung_admin` |
+
+Zustände: `start`, `pre`, `sit1`, `pause1`, `talk1`, `fb1`, `sit2`, `pause2`, `talk2`, `fb2`, `done`, `post`, `end`.
+
+**Reihenfolge und Bedingung** stehen weder im Log noch in den Tally-Daten. Sie werden bei der Auswertung über den Code (bzw. die Sitzungs-ID) ergänzt.
+
+## Anpassen
+
+| Was | Wo |
+|---|---|
+| Formular-IDs | `app.js`, Konstante `TALLY` |
+| Dauer des Haltens beim Beenden, Wartezeit nach dem Absenden, Zeit bis zum Fallback-Knopf | `app.js`, `HOLD_MS`, `ADVANCE_MS`, `IFRAME_TIMEOUT_MS` |
+| Beschriftung der Ablauf-Leiste | `app.js`, Liste `STEPS` |
+| Welches Szenario in welchem Gespräch läuft | `app.js`, `SCENARIO_OF_G` |
+| Anzahl mitzunehmender Gegenstände | `app.js`, `TAKE` |
+| Szenario-Texte und Gegenstände (Name, Hinweis, Bild) | `scenarios.js` |
+| Bilder der Gegenstände | `icons.js` (SVG, je Gegenstand ein Eintrag) |
+| Texte auf Willkommen-, STOPP-, Geschafft- und Ende-Seite | `index.html` |
+| Farben, Schriftgrößen, Abstände | `style.css` (Variablen oben) |
+
+In `scenarios.js` hat jedes Szenario Gegenstände für die Rollen `a` (Gesprächspartnerin) und `b` (Versuchsperson). `plane` und `island` sind vorhanden, aber nicht im Ablauf.
+
+## Projektstruktur
+
+```
+index.html        Seitenaufbau, alle Screens
+style.css         Gestaltung (hell; dunkel nur im Gespräch)
+app.js            Ablauf, Tally-Einbettung, Log, Admin-Modus
+scenarios.js      Szenarien und Gegenstände
+icons.js          Bilder der Gegenstände (SVG)
+archiv-szenarien/ frühere Szenario-Seite, wird nicht verwendet
 ```
 
-Die ID steht in der Tally-URL (`tally.so/r/<ID>`). In den Formularen müssen **Hidden Fields** mit genau diesen Namen angelegt sein:
+## Fehlerbehebung
 
-| Formular | Hidden Fields |
+| Problem | Ursache und Lösung |
 |---|---|
-| Vorher, Abschluss | `code` |
-| Gespräch (wird nach beiden Gesprächen verwendet, derselbe Fragebogen) | `code`, `gespraech` |
-
-`gespraech` ist `1` oder `2`. Nach dem Absenden eines Fragebogens (`Tally.FormSubmitted`) geht die Seite nach ca. 1,5 s automatisch weiter. Lädt ein Fragebogen nicht, erscheint unten ein kleiner „Weiter“-Knopf.
-
-## Eine Sitzung starten
-
-- **Über die URL (empfohlen):** `…/?code=b103a`
-  - `code`: 5 Zeichen, klein (Buchstaben/Ziffern)
-  - Die Startseite wird übersprungen, `code` verschwindet danach aus der Adresszeile.
-- **Von Hand:** Seite ohne Parameter öffnen, Code eintragen, „Weiter“. Danach erscheint der Code groß mit der Frage „Stimmt dieser Code?“. Erst „Ja, Sitzung starten“ legt die Sitzung an, „Zurück“ erlaubt eine Korrektur. Ist das Log einer früheren Sitzung noch nicht gespeichert, steht dort ein Hinweis.
-
-Der Fortschritt liegt im `localStorage` des Tablets. Ein Neuladen macht im selben Zustand weiter. Ein neuer Code startet eine neue Sitzung; Fortschritt und Log der alten Sitzung bleiben unter ihrem Code gespeichert.
-
-**Nach dem Ende** gilt die Sitzung nicht mehr als aktiv: Öffnest du die Seite danach ohne `?code=…`, erscheint wieder die Startseite (und nicht die Endseite der letzten Person).
-
-## Logs sichern
-
-Die Logs liegen nur im Speicher des Tablets. Sie enthalten keine Bedingung und keine Reihenfolge, nur Code, Zustand, Gesprächsnummer und Zeitstempel.
-
-- **Startseite → „Gespeicherte Sitzungen“:** Alle Sitzungen mit ihrem Stand und einem Status „Log gespeichert“ bzw. „**Log noch nicht gespeichert**“, jeweils mit Knöpfen für CSV und JSON. Das funktioniert auch nach dem Ende.
-- **Endseite im Admin-Modus:** Ein Kasten „Log speichern (CSV + JSON)“ mit Statuszeile.
-
-## Gespräch beenden
-
-Auf dem dunklen Bildschirm „Gespräch läuft …“ muss „Gespräch ist beendet“ 2 Sekunden gedrückt gehalten werden (Fortschrittsring), damit nichts versehentlich beendet wird.
-
-## Admin-Modus (nur Versuchsleiterin)
-
-- Sichtbar mit `?admin=1` (z. B. `…/?admin=1`) oder per Tastenkombination `Strg+Alt+L`.
-- **Log herunterladen**: CSV und JSON, Dateiname `log_<code>_<datum>.csv`. Spalten: `code, zustand, gespraech, ts_iso` (UTC, ms), `ts_epoch_ms, ereignis`. Die Reihenfolge ist nicht enthalten und wird bei der Auswertung über den Code ergänzt.
-- **Zum Testen springen:** Mit „‹ Zurück“, „Weiter ›“ und der Auswahl in der Admin-Leiste kommst du zu jeder Seite (z. B. direkt zur Situation-Seite, zur STOPP-Seite oder zum dunklen Gespräch), ohne Fragebögen auszufüllen. Ohne laufende Sitzung wird dafür eine Testsitzung mit dem Code `test0` angelegt. Jeder Sprung steht im Log als `sprung_admin`.
-- **Zeit pro Seite:** Die Admin-Leiste zeigt neben dem Code die aktuelle Seite und wie lange sie läuft (z. B. „Gespräch 1 · 5:12“). Das sieht nur der Admin-Modus, die Vp sieht nirgends einen Timer.
-- **Szenarien:** Der Knopf „Szenarien“ zeigt beide Szenarien mit Beschreibung und den Gegenständen von Vp und Gesprächspartnerin (nur Admin, als Nachschlagewerk).
-- **Zurücksetzen**: löscht Fortschritt und Log der aktuellen Sitzung (mit Rückfrage, vorher Log herunterladen).
-- Den Admin-Modus nicht auf dem Tablet öffnen, solange die Vp davor sitzt.
-
-Zustände im Log: `start, pre, sit1, pause1, talk1, fb1, sit2, pause2, talk2, fb2, done, post, end`. Ereignisse: `sitzung_gestartet`, `wechsel`, `form_abgesendet`, `weiter_manuell`, `neu_geladen`, `sprung_admin`.
-
-## Tablet-Hinweise
-
-Zoomen, Pull-to-Refresh, Textmarkieren und Kontextmenü sind abgeschaltet. Vor dem Verlassen/Neuladen warnt der Browser (`beforeunload`), solange eine Sitzung läuft. Der Wake Lock hält das Display an, wo der Browser ihn unterstützt (sonst ohne Fehlermeldung ignoriert).
+| Die Seite zeigt eine alte Version | Browser-Zwischenspeicher. Hart neu laden (Cmd+Shift+R) oder ein privates Fenster zum Prüfen nutzen. |
+| Ein Fragebogen lädt nicht | Internet und Erreichbarkeit von `tally.so` prüfen. Nach spätestens 20 Sekunden erscheint unten der „Weiter“-Knopf. |
+| Nach dem Absenden geht es nicht weiter | Tally hat das Absenden nicht gemeldet. Im Admin-Modus „Weiter ›“ tippen. Prüfen, ob die Formular-ID stimmt. |
+| Display geht aus | Wake Lock wird nur über HTTPS und in aktuellen Browsern unterstützt. Auf GitHub Pages testen, Bildschirmsperre des Tablets lang einstellen. |
+| Fortschritt weg nach Neustart | Privater Modus oder gelöschter Browser-Speicher. Normalen Tab verwenden, Logs nach jeder Sitzung sichern. |
+| Zwei Personen mit gleichem Code | Über die Spalte `sitzung` bzw. das Hidden Field `sitzung` in Tally unterscheiden. |
