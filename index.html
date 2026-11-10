@@ -80,7 +80,7 @@
 
       <!-- 4./8. Pause vor dem Gespräch (für beide Gespräche, Text wird per JS angepasst) -->
       <section id="s-pause" class="screen narrow" hidden>
-        <h1 class="stop">⏸ STOPP – bitte warte hier</h1>
+        <h1 class="stop">STOPP – bitte warte hier</h1>
         <ol class="pause-list">
           <li>Sag deiner Gesprächspartnerin kurz Bescheid, dass du bereit bist.</li>
           <li>Das <span id="pause-nr">erste</span> Gespräch beginnt, sobald deine Gesprächspartnerin dir Bescheid gibt.</li>
@@ -93,29 +93,23 @@
       <section id="s-talk" class="screen talk" hidden>
         <p class="talk-text">Gespräch läuft …</p>
         <div class="talk-bottom">
-          <button type="button" id="btn-end" class="hold">
-            <svg class="ring" viewBox="0 0 60 60" aria-hidden="true">
-              <circle class="ring-bg" cx="30" cy="30" r="26"></circle>
-              <circle class="ring-fg" id="ring-fg" cx="30" cy="30" r="26"></circle>
-            </svg>
-            <span>Gespräch ist beendet</span>
-          </button>
-          <p class="talk-hint">Zum Beenden 2 Sekunden gedrückt halten.</p>
+          <button type="button" id="btn-end" class="primary endbtn">Gespräch beendet – weiter zum Fragebogen</button>
+          <p class="talk-hint">Bitte erst tippen, wenn das Gespräch beendet wurde.</p>
         </div>
       </section>
 
       <!-- 9. Zwischenseite nach beiden Gesprächen -->
       <section id="s-done" class="screen narrow center" hidden>
-        <h1>✅ Geschafft – die Gespräche sind beendet.</h1>
-        <p>Sag deiner Gesprächspartnerin kurz Bescheid.</p>
-        <p>Du kannst jetzt in Ruhe den Brustgurt abnehmen.</p>
-        <p>Tippe danach auf „Weiter“.</p>
+        <h1>Geschafft – die Gespräche sind beendet.</h1>
+        <p>Es folgt noch ein letzter Fragebogen.</p>
+        <p>Tippe auf „Weiter“, wenn du bereit bist.</p>
         <button type="button" id="btn-done" class="primary">Weiter</button>
       </section>
 
       <!-- 11. Ende -->
       <section id="s-end" class="screen narrow center" hidden>
-        <h1>Vielen Dank für deine Teilnahme! 🎉</h1>
+        <h1>Vielen Dank für deine Teilnahme!</h1>
+        <p>Nimm in Ruhe den Brustgurt ab und verlasse den Raum, wenn du bereit bist.</p>
         <!-- Nur im Admin-Modus sichtbar: Log sichern, bevor das Tablet weitergegeben wird -->
         <div id="end-save" class="card endsave" hidden>
           <p><strong>Log dieser Sitzung speichern</strong></p>
@@ -129,13 +123,18 @@
     <aside id="admin" hidden>
       <span id="admin-info"></span>
       <!-- Zum Testen: zwischen den Seiten springen (jeder Sprung steht im Log als "sprung_admin") -->
-      <button type="button" id="btn-prev">‹ Zurück</button>
-      <select id="admin-jump" aria-label="Springe zu"></select>
-      <button type="button" id="btn-next">Weiter ›</button>
-      <button type="button" id="btn-scen">Szenarien</button>
-      <button type="button" id="btn-csv">Log herunterladen (CSV)</button>
-      <button type="button" id="btn-json">JSON</button>
-      <button type="button" id="btn-reset">Zurücksetzen</button>
+      <div class="adm-group">
+        <button type="button" id="btn-home" title="Zur Startseite">⌂ Start</button>
+        <button type="button" id="btn-prev" title="Eine Seite zurück" aria-label="Zurück">‹</button>
+        <select id="admin-jump" aria-label="Springe zu"></select>
+        <button type="button" id="btn-next" title="Eine Seite weiter" aria-label="Weiter">›</button>
+      </div>
+      <div class="adm-group">
+        <button type="button" id="btn-scen">Szenarien</button>
+        <button type="button" id="btn-csv">Log CSV</button>
+        <button type="button" id="btn-json">JSON</button>
+        <button type="button" id="btn-reset">Zurücksetzen</button>
+      </div>
     </aside>
 
     <!-- Admin: Übersicht beider Szenarien mit allen Gegenständen (Vp und Gesprächspartnerin) -->

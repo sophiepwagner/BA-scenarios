@@ -27,19 +27,19 @@ Eine kleine statische Website (reines HTML, CSS und JavaScript, **kein Build, ke
 | # | Seite | Was die Vp sieht und tut | Weiter geht es |
 |---|---|---|---|
 | 1 | **Willkommen** | Gibt ihren persönlichen Code ein (5 Zeichen). | „Weiter“, dann Bestätigung („Stimmt dein Code?“) |
-| 2 | **Fragebogen „Vorher“** (Tally) | Füllt den Fragebogen aus. | automatisch nach dem Absenden |
+| 2 | **Fragebogen „Vorher“** (Tally) | Füllt den Fragebogen aus. | „Weiter“ nach dem Absenden |
 | 3 | **Situation und Gegenstände** (Gespräch 1) | Liest Situation, Aufgabe und ihre 4 Gegenstände. | „Weiter“ |
 | 4 | **STOPP-Seite** | Wartet, sagt der Gesprächspartnerin Bescheid, dass sie bereit ist. | „Gespräch beginnen“ |
-| 5 | **Gespräch läuft** (dunkel, kein Timer) | Führt das Gespräch, schaut nicht aufs Tablet. | „Gespräch ist beendet“ 2 Sekunden gedrückt halten |
-| 6 | **Fragebogen zum Gespräch** (Tally, `gespraech=1`) | Füllt den Fragebogen aus. | automatisch nach dem Absenden |
+| 5 | **Gespräch läuft** (dunkel, kein Timer) | Führt das Gespräch, schaut nicht aufs Tablet. | „Gespräch beendet – weiter zum Fragebogen“ tippen |
+| 6 | **Fragebogen zum Gespräch** (Tally, `gespraech=1`) | Füllt den Fragebogen aus. | „Weiter“ nach dem Absenden |
 | 7–10 | dasselbe für **Gespräch 2** (zweites Szenario, `gespraech=2`) | | |
-| 11 | **Geschafft** | Soll den Brustgurt abnehmen. | „Weiter“ |
-| 12 | **Abschlussfragebogen** (Tally) | Füllt den Fragebogen aus. | automatisch nach dem Absenden |
+| 11 | **Geschafft** | Hinweis auf den letzten Fragebogen. | „Weiter“ |
+| 12 | **Abschlussfragebogen** (Tally) | Füllt den Fragebogen aus. | „Weiter“ nach dem Absenden |
 | 13 | **Ende** | „Vielen Dank für deine Teilnahme!“ | – |
 
 - **Ablauf-Leiste oben:** Fünf Segmente (Start, Gespräch 1, Gespräch 2, Rückblick, Fertig) zeigen, wo die Vp gerade ist. Auf der Startseite und im dunklen Gespräch ist sie ausgeblendet.
-- **Automatisch weiter:** Nach dem Absenden eines Tally-Formulars (Meldung `Tally.FormSubmitted`) geht die Seite nach ca. 1,5 s weiter. Lädt ein Fragebogen nicht (kein Netz, Tally nicht erreichbar), erscheint unten ein kleiner „Weiter“-Knopf.
-- **Gespräch beenden:** Der Knopf muss 2 Sekunden gedrückt werden (Fortschrittsring), damit nichts versehentlich beendet wird.
+- **Notfall-Weiter:** Lädt ein Fragebogen nicht (kein Netz), erscheint ein „Weiter“-Knopf nur im Admin-Modus.
+- **Fragebögen:** Es gibt kein automatisches Weiterspringen. Nach dem Absenden bleibt die letzte Tally-Seite sichtbar, erst dann erscheint unten „Weiter“.
 - **Szenarien:** Gespräch 1 ist „Autopanne in der Wüste“, Gespräch 2 „Eingeschneite Berghütte“. Jede Person hat 4 von 8 Gegenständen, zusammen wählt man 5 aus. Die Gegenstände der Vp stehen auf der Situation-Seite, die der Gesprächspartnerin nur im Admin-Modus.
 - **Nach dem Ende** gilt die Sitzung nicht mehr als aktiv. Wer die Seite danach öffnet, sieht wieder „Willkommen“ für die nächste Person.
 
@@ -122,7 +122,7 @@ Aktivieren mit `?admin=1` hinter der Adresse oder mit `Strg+Alt+L` (nur mit Tast
 
 | Bereich | Was er kann |
 |---|---|
-| **Leiste unten links** | ‹ Zurück, Weiter ›, Auswahl zum Springen zu jeder Seite, Zeit auf der aktuellen Seite (z. B. „Gespräch 1 · 5:12“), Log herunterladen (CSV, JSON), Zurücksetzen |
+| **Leiste unten** | Start, ‹ ›, Auswahl zum Springen zu jeder Seite, Zeit auf der aktuellen Seite (z. B. „Gespräch 1 · 5:12“), Szenarien, Log (CSV, JSON), Zurücksetzen |
 | **Szenarien** | Übersicht beider Szenarien mit Gegenständen von Vp und Gesprächspartnerin |
 | **Situation-Seiten** | Gelber Kasten mit den Gegenständen der Gesprächspartnerin unter denen der Vp |
 | **Startseite** | Liste „Gespeicherte Sitzungen“ mit Log-Status und Download |

@@ -333,6 +333,9 @@ select:focus-visible {
   height: 140px;
   min-height: 0;
 }
+.fallback[hidden] {
+  display: none;
+}
 .fallback {
   display: block;
   margin: 24px auto 8px;
@@ -571,6 +574,7 @@ select:focus-visible {
 .talk-bottom {
   width: 100%;
   max-width: 520px;
+  margin: 0 auto;
   text-align: center;
 }
 .talk-hint {
@@ -578,38 +582,20 @@ select:focus-visible {
   font-size: 0.8rem;
   color: #7a8290;
 }
-.hold {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  width: 100%;
-  min-height: 84px;
-  padding: 12px 24px;
-  font-size: 1.15rem;
-  font-weight: 600;
+.endbtn {
+  display: block;
+  margin: 0 auto;
+  width: auto;
+  min-height: 44px;
+  padding: 10px 22px;
+  font-size: 0.9rem;
+  font-weight: 500;
   background: transparent;
-  border: 1.5px solid #4a5260;
-  color: var(--dark-ink);
-  touch-action: none; /* damit langes Drücken sauber ankommt */
+  border: 1px solid #3a4352;
+  color: #8b93a1;
 }
-.ring {
-  flex: 0 0 44px;
-  width: 44px;
-  height: 44px;
-  transform: rotate(-90deg);
-}
-.ring circle {
-  fill: none;
-  stroke-width: 5;
-}
-.ring-bg {
-  stroke: #2a313b;
-}
-.ring-fg {
-  stroke: #8fa6f0;
-  stroke-dasharray: 163.36; /* Umfang bei r = 26 */
-  stroke-dashoffset: 163.36;
+.endbtn:active {
+  background: #1b2029;
 }
 
 /* ===== Admin: Übersicht der Szenarien ===== */
@@ -664,47 +650,70 @@ select:focus-visible {
 }
 
 /* ===== Versuchsleiterin-Bereich (nur Admin) ===== */
+/* Admin-Leiste: schmale dunkle Leiste fix unten; app.js setzt --admin-h (Höhe), damit unten Platz bleibt */
+body { padding-bottom: var(--admin-h, 0px); }
 #admin {
   position: fixed;
-  left: 8px;
-  bottom: 8px;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 20;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
-  max-width: calc(100% - 16px);
-  padding: 8px 10px;
-  background: #fff;
-  color: var(--ink);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding: 8px 14px;
+  background: #1b2029;
+  color: #c9ced6;
   font-size: 0.8rem;
 }
 #admin[hidden] {
   display: none;
 }
+#admin-info {
+  flex: 1 1 auto;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.adm-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
 #admin button {
-  padding: 10px 14px;
-  min-height: 44px;
+  padding: 8px 12px;
+  min-height: 40px;
   font-size: 0.8rem;
-  background: var(--plate);
-  border: 1px solid var(--line);
-  color: var(--ink);
+  font-weight: 500;
+  background: #2a313d;
+  border: 0;
+  border-radius: 8px;
+  color: #e6e9ee;
+}
+#admin button:active {
+  background: #3a4352;
+}
+#admin #btn-prev,
+#admin #btn-next {
+  min-width: 40px;
+  padding: 8px 0;
+  font-size: 1.2rem;
+  line-height: 1;
 }
 #admin select {
-  min-height: 44px;
-  padding: 8px 10px;
+  min-height: 40px;
+  padding: 6px 10px;
   font: inherit;
   font-size: 0.8rem;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: #fff;
-  color: var(--ink);
+  border: 0;
+  border-radius: 8px;
+  background: #2a313d;
+  color: #e6e9ee;
 }
 #admin #btn-reset {
-  color: var(--error);
+  background: transparent;
+  color: #ff8f86;
 }
 #admin button:disabled {
   opacity: 0.4;

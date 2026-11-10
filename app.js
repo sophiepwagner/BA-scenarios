@@ -16,10 +16,7 @@
   };
   var TALLY_EMBED = "https://tally.so/embed/";
   var TALLY_SCRIPT = "https://tally.so/widgets/embed.js";
-  var HOLD_MS = 2000; // so lange muss "Gespräch ist beendet" gedrückt werden
-  var ADVANCE_MS = 1500; // Wartezeit nach dem Absenden eines Fragebogens bis zum nächsten Schritt
   var IFRAME_TIMEOUT_MS = 20000; // lädt der Fragebogen nicht, erscheint der Fallback-Knopf
-  var RING_LEN = 163.36; // Umfang des Fortschrittsrings (2 * PI * 26), passt zu style.css
 
   // ---------- Ablauf (Reihenfolge fix) ----------
   // g = Gespräch 1 oder 2, form = welches Tally-Formular
@@ -294,7 +291,6 @@
       fillScenario(st.g);
     }
     if (st.screen === "s-pause") $("pause-nr").textContent = st.g === 1 ? "erste" : "zweite";
-    if (st.screen === "s-talk") resetHold();
     if (st.form) buildTally(st);
     if (st.id === "start") renderSessions();
     renderAdmin();
@@ -440,6 +436,10 @@
     function showFallback() {
       if (session && session.index === idx) fb.hidden = false;
     }
+    // Lädt der Fragebogen nicht, bekommt nur die Versuchsleiterin (Admin) einen Notfall-Weiter-Knopf
+    function showFallbackAdmin() {
+      if (admin) showFallback();
+    }
     if (placeholder) showFallback();
     ensureTallyScript(function (ok) {
       if (!session || session.index !== idx) return;
@@ -447,10 +447,10 @@
         window.Tally.loadEmbeds();
       } else {
         iframe.setAttribute("src", url); // ohne Tally-Script: direkt laden
-        showFallback();
+        showFallbackAdmin();
       }
     });
-    iframeTimer = setTimeout(showFallback, IFRAME_TIMEOUT_MS);
+    iframeTimer = setTimeout(showFallbackAdmin, IFRAME_TIMEOUT_MS);
   }
   ["s-pre", "s-fb", "s-post"].forEach(function (id) {
     $(id).querySelector(".fallback").addEventListener("click", function () {
@@ -476,11 +476,9 @@
     if (!text || text.indexOf("Tally.FormSubmitted") === -1) return;
     if (submittedFor === session.index) return; // nur einmal pro Zustand
     submittedFor = session.index;
-    var idx = session.index;
     logEntry("form_abgesendet");
-    advanceTimer = setTimeout(function () {
-      if (session && session.index === idx) next();
-    }, ADVANCE_MS);
+    // Kein automatisches Weiterspringen: die letzte Seite des Fragebogens bleibt sichtbar, Weiter erscheint erst jetzt
+    $(st.screen).querySelector(".fallback").hidden = false;
   });
 
   // ---------- Start: die Versuchsperson gibt ihren persönlichen Code ein ----------
@@ -547,50 +545,9 @@
     startSession(code);
   });
 
-  // ---------- Gespräch beenden: 2 Sekunden gedrückt halten ----------
-  var btnEnd = $("btn-end");
-  var ringFg = $("ring-fg");
-  var holdT0 = 0;
-  var holdRaf = 0;
-  var holding = false;
-  function setRing(p) {
-    ringFg.style.strokeDashoffset = String(RING_LEN * (1 - p));
-  }
-  function resetHold() {
-    holding = false;
-    cancelAnimationFrame(holdRaf);
-    setRing(0);
-  }
-  function holdTick() {
-    if (!holding) return;
-    var p = Math.min(1, (performance.now() - holdT0) / HOLD_MS);
-    setRing(p);
-    if (p >= 1) {
-      resetHold();
-      next();
-    } else {
-      holdRaf = requestAnimationFrame(holdTick);
-    }
-  }
-  btnEnd.addEventListener("pointerdown", function (e) {
-    e.preventDefault();
-    if (holding) return;
-    holding = true;
-    holdT0 = performance.now();
-    holdRaf = requestAnimationFrame(holdTick);
-  });
-  ["pointerup", "pointercancel", "pointerleave"].forEach(function (ev) {
-    btnEnd.addEventListener(ev, resetHold);
-  });
-  // Finger rutscht vom Knopf (bei Touch gibt es kein pointerleave): abbrechen
-  btnEnd.addEventListener("pointermove", function (e) {
-    if (!holding) return;
-    var r = btnEnd.getBoundingClientRect();
-    var m = 16;
-    if (e.clientX < r.left - m || e.clientX > r.right + m || e.clientY < r.top - m || e.clientY > r.bottom + m) resetHold();
-  });
-  btnEnd.addEventListener("contextmenu", function (e) {
-    e.preventDefault();
+  // ---------- Gespräch beenden: einfacher Tipp ----------
+  $("btn-end").addEventListener("click", function () {
+    next();
   });
 
   // ---------- Weitere Knöpfe ----------
@@ -618,7 +575,7 @@
     pause2: "STOPP-Seite 2",
     talk2: "Gespräch 2 (dunkel)",
     fb2: "Fragebogen nach Gespräch 2",
-    done: "Geschafft (Brustgurt)",
+    done: "Geschafft",
     post: "Abschlussfragebogen",
     end: "Ende",
   };
@@ -676,8 +633,20 @@
   jumpSelect.addEventListener("change", function () {
     jumpTo(parseInt(jumpSelect.value, 10));
   });
+  // Zur Startseite (mit Sitzungsliste): die Sitzung bleibt gespeichert, nur "aktiv" wird sie nicht mehr
+  function goHome() {
+    clearTimeout(advanceTimer);
+    clearTimeout(iframeTimer);
+    lsRemove(K_ACTIVE);
+    session = null;
+    $("s-confirm").hidden = true;
+    render();
+  }
+  $("btn-home").addEventListener("click", goHome);
   $("btn-prev").addEventListener("click", function () {
-    jumpTo(session ? Math.max(1, session.index - 1) : 1);
+    if (!session) return;
+    if (session.index <= 1) goHome();
+    else jumpTo(session.index - 1);
   });
   $("btn-next").addEventListener("click", function () {
     jumpTo(session ? Math.min(LAST, session.index + 1) : 1);
@@ -831,5 +800,16 @@
       }
     }
     render();
+  })();
+  // Platz unter dem Inhalt für die Admin-Leiste (Höhe ändert sich beim Umbrechen)
+  (function () {
+    var bar = $("admin");
+    function sync() {
+      document.documentElement.style.setProperty("--admin-h", bar.hidden ? "0px" : bar.offsetHeight + 4 + "px");
+    }
+    if (window.ResizeObserver) new ResizeObserver(sync).observe(bar);
+    new MutationObserver(sync).observe(bar, { attributes: true, attributeFilter: ["hidden"] });
+    window.addEventListener("resize", sync);
+    sync();
   })();
 })();
