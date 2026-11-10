@@ -719,3 +719,12 @@ body { padding-bottom: var(--admin-h, 0px); }
   opacity: 0.4;
   cursor: default;
 }
+
+/* Countdown vor dem Gespräch */
+.count-num {
+  font-size: 7rem;
+  font-weight: 700;
+  line-height: 1;
+  margin: 1.5rem 0 0;
+  color: var(--accent);
+}

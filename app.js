@@ -17,6 +17,7 @@
   var TALLY_EMBED = "https://tally.so/embed/";
   var TALLY_SCRIPT = "https://tally.so/widgets/embed.js";
   var IFRAME_TIMEOUT_MS = 20000; // lädt der Fragebogen nicht, erscheint der Fallback-Knopf
+  var COUNTDOWN_S = 5; // Countdown "Schau jetzt auf den Monitor" vor jedem Gespräch (nur Hinweis, löst nichts aus)
 
   // ---------- Ablauf (Reihenfolge fix) ----------
   // g = Gespräch 1 oder 2, form = welches Tally-Formular
@@ -25,10 +26,12 @@
     { id: "pre", screen: "s-pre", form: "pre" },
     { id: "sit1", screen: "s-sit", g: 1 },
     { id: "pause1", screen: "s-pause", g: 1 },
+    { id: "count1", screen: "s-count", g: 1 },
     { id: "talk1", screen: "s-talk", g: 1 },
     { id: "fb1", screen: "s-fb", form: "gespraech", g: 1 },
     { id: "sit2", screen: "s-sit", g: 2 },
     { id: "pause2", screen: "s-pause", g: 2 },
+    { id: "count2", screen: "s-count", g: 2 },
     { id: "talk2", screen: "s-talk", g: 2 },
     { id: "fb2", screen: "s-fb", form: "gespraech", g: 2 },
     { id: "done", screen: "s-done" },
@@ -39,7 +42,7 @@
 
   // Ablauf-Leiste oben: Abschnitte, in die die Zustände gruppiert werden
   var STEPS = ["Start", "Gespräch 1", "Gespräch 2", "Rückblick", "Fertig"];
-  var STEP_OF = { pre: 0, sit1: 1, pause1: 1, talk1: 1, fb1: 1, sit2: 2, pause2: 2, talk2: 2, fb2: 2, done: 3, post: 3, end: 4 };
+  var STEP_OF = { pre: 0, sit1: 1, pause1: 1, count1: 1, talk1: 1, fb1: 1, sit2: 2, pause2: 2, count2: 2, talk2: 2, fb2: 2, done: 3, post: 3, end: 4 };
 
   function $(id) {
     return document.getElementById(id);
@@ -277,7 +280,7 @@
   }
 
   // ---------- Anzeige ----------
-  var SCREENS = ["s-start", "s-confirm", "s-pre", "s-fb", "s-post", "s-sit", "s-pause", "s-talk", "s-done", "s-end"];
+  var SCREENS = ["s-start", "s-confirm", "s-pre", "s-fb", "s-post", "s-sit", "s-pause", "s-count", "s-talk", "s-done", "s-end"];
   function render() {
     var st = cur();
     SCREENS.forEach(function (id) {
@@ -290,10 +293,30 @@
       $("sit-eyebrow").textContent = "Gespräch " + st.g;
       fillScenario(st.g);
     }
+    if (st.screen === "s-count") startCountdown(session.index);
     if (st.screen === "s-pause") $("pause-nr").textContent = st.g === 1 ? "erste" : "zweite";
     if (st.form) buildTally(st);
     if (st.id === "start") renderSessions();
     renderAdmin();
+  }
+
+  // ---------- Countdown vor dem Gespräch ----------
+  // Zählt herunter und geht dann automatisch ins Gespräch. Nutzt advanceTimer, damit go()/clearTimers() ihn abbrechen.
+  function startCountdown(idx) {
+    var n = COUNTDOWN_S;
+    $("count-num").textContent = String(n);
+    (function tick() {
+      advanceTimer = setTimeout(function () {
+        if (!session || session.index !== idx) return;
+        n--;
+        if (n <= 0) {
+          next("countdown_ende");
+        } else {
+          $("count-num").textContent = String(n);
+          tick();
+        }
+      }, 1000);
+    })();
   }
 
   // ---------- Situation und Gegenstände (eigene Seite vor jedem Gespräch) ----------
@@ -569,10 +592,12 @@
     pre: "Fragebogen vorher",
     sit1: "Situation + Gegenstände 1",
     pause1: "STOPP-Seite 1",
+    count1: "Countdown 1",
     talk1: "Gespräch 1 (dunkel)",
     fb1: "Fragebogen nach Gespräch 1",
     sit2: "Situation + Gegenstände 2",
     pause2: "STOPP-Seite 2",
+    count2: "Countdown 2",
     talk2: "Gespräch 2 (dunkel)",
     fb2: "Fragebogen nach Gespräch 2",
     done: "Geschafft",
@@ -585,10 +610,12 @@
     pre: "Fragebogen vorher",
     sit1: "Situation 1",
     pause1: "STOPP 1",
+    count1: "Countdown 1",
     talk1: "Gespräch 1",
     fb1: "Fragebogen 1",
     sit2: "Situation 2",
     pause2: "STOPP 2",
+    count2: "Countdown 2",
     talk2: "Gespräch 2",
     fb2: "Fragebogen 2",
     done: "Geschafft",

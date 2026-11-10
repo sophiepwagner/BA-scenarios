@@ -17,8 +17,9 @@ Eine kleine statische Website (reines HTML, CSS und JavaScript, **kein Build, ke
 ## Auf einen Blick
 
 - **Wer bedient was:** Die Vp tippt sich allein durch die Seite. Die Versuchsleiterin öffnet die Seite, gibt das Tablet weiter und greift nur im Notfall ein (Admin-Modus).
-- **Bedingung und Reihenfolge kennt die Seite nicht.** Welche Bedingung (Teleprompter oder Webcam) in welchem Gespräch läuft, steuert ein separates Skript. Die Zuordnung `code → Reihenfolge` wird erst bei der Auswertung ergänzt. Die Versuchsleiterin weiß dadurch während der Sitzung nicht, welche Bedingung läuft, und im Log steht sie auch nicht.
-- **Keine Fernsteuerung.** Jedes Tablet läuft für sich, es gibt keine Verbindung zu anderen Geräten.
+- **Bedingung und Reihenfolge kennt die Seite nicht.** Welche Bedingung (Teleprompter oder Webcam) in welchem Gespräch läuft, steuert der separate Experiment-Controller (Repo `bachelorarbeit`, Ordner `Camera Controller`, siehe dessen README). Die Zuordnung `code → Reihenfolge` wird erst bei der Auswertung ergänzt. Die Versuchsleiterin weiß dadurch während der Sitzung nicht, welche Bedingung läuft, und im Log steht sie auch nicht.
+- **Keine Verbindung zum Controller.** Die Seite und der Controller kennen sich nicht. Den Zeitpunkt, wann die Kamera an- und ausgeht, bestimmt die Versuchsleiterin per Hotkey (F9/F10) im Controller. Die Seite zeigt vor jedem Gespräch nur einen Countdown als Hinweis für die Vp. Jedes Tablet läuft für sich.
+- **VP-ID:** Der Controller liest den persönlichen Code der Vp aus der Tally-Einreichung des Fragebogens „Vorher“ (Hidden Field `code`). Das Feld muss in diesem Formular deshalb vorhanden sein.
 - **Kein Tracking.** Die einzige externe Abhängigkeit ist Tally (`tally.so`) für die Fragebögen.
 - **Sprache:** Deutsch, Ansprache „du“, die Gesprächspartnerin heißt „Gesprächspartnerin“.
 
@@ -29,7 +30,8 @@ Eine kleine statische Website (reines HTML, CSS und JavaScript, **kein Build, ke
 | 1 | **Willkommen** | Gibt ihren persönlichen Code ein (5 Zeichen). | „Weiter“, dann Bestätigung („Stimmt dein Code?“) |
 | 2 | **Fragebogen „Vorher“** (Tally) | Füllt den Fragebogen aus. | „Weiter“ nach dem Absenden |
 | 3 | **Situation und Gegenstände** (Gespräch 1) | Liest Situation, Aufgabe und ihre 4 Gegenstände. | „Weiter“ |
-| 4 | **STOPP-Seite** | Wartet, sagt der Gesprächspartnerin Bescheid, dass sie bereit ist. | „Gespräch beginnen“ |
+| 4 | **STOPP-Seite** | Wartet, sagt der Gesprächspartnerin Bescheid, dass sie bereit ist. | „Ich bin bereit“ |
+| **Countdown** (5 s, `COUNTDOWN_S` in `app.js`) | Liest „Schau jetzt auf den Monitor“. Nur ein Hinweis, er löst nichts aus (die Kamera schaltet die Versuchsleiterin per Hotkey im Controller). | automatisch, danach Gespräch |
 | 5 | **Gespräch läuft** (dunkel, kein Timer) | Führt das Gespräch, schaut nicht aufs Tablet. | „Gespräch beendet – weiter zum Fragebogen“ tippen |
 | 6 | **Fragebogen zum Gespräch** (Tally, `gespraech=1`) | Füllt den Fragebogen aus. | „Weiter“ nach dem Absenden |
 | 7–10 | dasselbe für **Gespräch 2** (zweites Szenario, `gespraech=2`) | | |
@@ -148,9 +150,9 @@ Alles liegt im `localStorage` des Tablets (Schlüssel `studie:<sitzung>:state`, 
 | `gespraech` | `1` oder `2` (leer außerhalb der Gespräche) |
 | `ts_iso` | Zeitstempel, ISO-8601, UTC, mit Millisekunden |
 | `ts_epoch_ms` | derselbe Zeitpunkt als Unix-Zeit in Millisekunden |
-| `ereignis` | `sitzung_gestartet`, `wechsel`, `form_abgesendet`, `weiter_manuell`, `neu_geladen`, `sprung_admin` |
+| `ereignis` | `sitzung_gestartet`, `wechsel`, `form_abgesendet`, `weiter_manuell`, `neu_geladen`, `sprung_admin`, `countdown_ende` |
 
-Zustände: `start`, `pre`, `sit1`, `pause1`, `talk1`, `fb1`, `sit2`, `pause2`, `talk2`, `fb2`, `done`, `post`, `end`.
+Zustände: `start`, `pre`, `sit1`, `pause1`, `count1`, `talk1`, `fb1`, `sit2`, `pause2`, `count2`, `talk2`, `fb2`, `done`, `post`, `end`.
 
 **Reihenfolge und Bedingung** stehen weder im Log noch in den Tally-Daten. Sie werden bei der Auswertung über den Code (bzw. die Sitzungs-ID) ergänzt.
 
@@ -159,7 +161,8 @@ Zustände: `start`, `pre`, `sit1`, `pause1`, `talk1`, `fb1`, `sit2`, `pause2`, `
 | Was | Wo |
 |---|---|
 | Formular-IDs | `app.js`, Konstante `TALLY` |
-| Dauer des Haltens beim Beenden, Wartezeit nach dem Absenden, Zeit bis zum Fallback-Knopf | `app.js`, `HOLD_MS`, `ADVANCE_MS`, `IFRAME_TIMEOUT_MS` |
+| Länge des Countdowns vor dem Gespräch | `app.js`, `COUNTDOWN_S` |
+| Zeit bis zum Fallback-Knopf (Fragebogen lädt nicht) | `app.js`, `IFRAME_TIMEOUT_MS` |
 | Beschriftung der Ablauf-Leiste | `app.js`, Liste `STEPS` |
 | Welches Szenario in welchem Gespräch läuft | `app.js`, `SCENARIO_OF_G` |
 | Anzahl mitzunehmender Gegenstände | `app.js`, `TAKE` |

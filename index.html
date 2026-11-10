@@ -84,9 +84,15 @@
         <ol class="pause-list">
           <li>Sag deiner Gesprächspartnerin kurz Bescheid, dass du bereit bist.</li>
           <li>Das <span id="pause-nr">erste</span> Gespräch beginnt, sobald deine Gesprächspartnerin dir Bescheid gibt.</li>
-          <li>Tippe erst auf „Gespräch beginnen“, wenn es losgeht.</li>
+          <li>Tippe erst auf „Ich bin bereit“, wenn es losgeht. Danach läuft ein kurzer Countdown.</li>
         </ol>
-        <button type="button" id="btn-begin" class="primary">Gespräch beginnen</button>
+        <button type="button" id="btn-begin" class="primary">Ich bin bereit</button>
+      </section>
+
+      <!-- 4b./8b. Countdown vor dem Gespräch: nur ein Hinweis für die Vp, löst nichts aus (keine Verbindung zum Controller) -->
+      <section id="s-count" class="screen narrow center" hidden>
+        <h1>Schau jetzt auf den Monitor</h1>
+        <p id="count-num" class="count-num" aria-live="polite"></p>
       </section>
 
       <!-- 4./7. Gespräch läuft: ruhig, dunkel, kein Timer -->
