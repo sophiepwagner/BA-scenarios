@@ -1,0 +1,10 @@
+{
+  "name": "Studie",
+  "short_name": "Studie",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff"
+}

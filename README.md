@@ -99,6 +99,7 @@ Zum Durchklicken ohne Fragebögen: Admin-Modus (`http://localhost:8000/?admin=1`
 
 - **Normalen Browser-Tab nutzen, keinen privaten Modus.** Fortschritt und Log liegen im `localStorage` und gehen im privaten Modus beim Schließen verloren.
 - **Uhrzeit und Zeitzone prüfen** (automatisch einstellen). Das Log speichert die Tablet-Zeit, die du später mit Aufnahmen oder anderen Geräten abgleichst.
+- **Als Web-App auf den Home-Bildschirm legen** (Safari → Teilen → „Zum Home-Bildschirm"). Sie öffnet dann im Vollbild ohne Tabs und Adressleiste (`manifest.webmanifest` und die `apple-mobile-web-app-…`-Angaben in `index.html`). Ein schon vorhandenes Symbol vorher löschen und nach jeder Änderung dieser Angaben neu anlegen. Die Web-App hat einen **eigenen Speicher**, getrennt von Safari: Logs in Safari und in der Web-App liegen getrennt. Wake Lock danach am iPad testen.
 - **Tablet sperren,** damit nichts versehentlich verlassen wird: iPad „Geführter Zugriff“, Android „Bildschirmfixierung“. Das lässt sich nicht aus der Seite heraus lösen.
 - **Töne aus, Helligkeit mittel,** die Seite spielt keine Töne.
 - Seite einmal vom Tablet aus testen, bevor die erste Vp kommt (Fragebögen laden, Halten-Knopf, Display bleibt an).
