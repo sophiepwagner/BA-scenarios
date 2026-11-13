@@ -52,6 +52,7 @@ Die Seite meldet an den Experiment-Controller (Terminal der Versuchsleiterin), w
 - **Was gesendet wird:** Schrittname (z. B. `count1`), Gesprächsnummer und Zeitstempel, bei jedem Seitenwechsel und alle 120 s als Heartbeat. **Nie** Code, Sitzungs-ID, Antworten oder die Bedingung.
 - **Wohin:** An den öffentlichen Dienst ntfy.sh, Kanal `STATUS_TOPIC` oben in `app.js`. Der Controller liest denselben Kanal (Umgebungsvariable `STATUS_TOPIC`, siehe dessen README).
 - **Ausfall:** Fehler (kein Netz, Dienst down) werden verschluckt und beeinflussen den Ablauf nie.
+- **Im Admin-Modus** (`?admin=1`) wird nichts gesendet, damit dein Laptop den Status der Vp nicht stört.
 - **Abschalten:** `STATUS_TOPIC` in `app.js` auf `""` setzen.
 - Der Kanalname steht im öffentlichen Repo. Wer ihn kennt, kann nur die Schrittnamen lesen oder falsche senden. Es sind keine personenbezogenen Daten enthalten.
 
@@ -109,7 +110,7 @@ Zum Durchklicken ohne Fragebögen: Admin-Modus (`http://localhost:8000/?admin=1`
 
 - **Normalen Browser-Tab nutzen, keinen privaten Modus.** Fortschritt und Log liegen im `localStorage` und gehen im privaten Modus beim Schließen verloren.
 - **Uhrzeit und Zeitzone prüfen** (automatisch einstellen). Das Log speichert die Tablet-Zeit, die du später mit Aufnahmen oder anderen Geräten abgleichst.
-- **Als Web-App auf den Home-Bildschirm legen** (Safari → Teilen → „Zum Home-Bildschirm"). Sie öffnet dann im Vollbild ohne Tabs und Adressleiste (`manifest.webmanifest` und die `apple-mobile-web-app-…`-Angaben in `index.html`). Ein schon vorhandenes Symbol vorher löschen und nach jeder Änderung dieser Angaben neu anlegen. Die Web-App hat einen **eigenen Speicher**, getrennt von Safari: Logs in Safari und in der Web-App liegen getrennt. Wake Lock danach am iPad testen.
+- **Normal in Safari öffnen** (nicht als Web-App vom Home-Bildschirm), damit die Safari-Leiste zum Neuladen sichtbar bleibt. Ein früher angelegtes Home-Bildschirm-Symbol löschen, es hat einen eigenen Speicher getrennt von Safari. Wake Lock am iPad testen.
 - **Tablet sperren,** damit nichts versehentlich verlassen wird: iPad „Geführter Zugriff“, Android „Bildschirmfixierung“. Das lässt sich nicht aus der Seite heraus lösen.
 - **Töne aus, Helligkeit mittel,** die Seite spielt keine Töne.
 - Seite einmal vom Tablet aus testen, bevor die erste Vp kommt (Fragebögen laden, Halten-Knopf, Display bleibt an).

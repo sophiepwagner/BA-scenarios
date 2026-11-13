@@ -266,7 +266,7 @@
   // ---------- Live-Status (nur Anzeige) ----------
   // Feuer-und-vergessen: Fehler (kein Netz, Dienst down) werden verschluckt und beeinflussen den Ablauf nie.
   function publishStatus(heartbeat) {
-    if (!STATUS_TOPIC || !session || session.index < 1) return;
+    if (!STATUS_TOPIC || admin || !session || session.index < 1) return;
     var st = cur();
     var body = JSON.stringify({
       t: "state",
