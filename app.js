@@ -19,6 +19,12 @@
   var IFRAME_TIMEOUT_MS = 20000; // lädt der Fragebogen nicht, erscheint der Fallback-Knopf
   var COUNTDOWN_S = 5; // Countdown "Schau jetzt auf den Monitor" vor jedem Gespräch (nur Hinweis, löst nichts aus)
 
+  // Live-Status für die Versuchsleiterin (nur Anzeige im Controller, steuert nichts). Gesendet werden nur Schrittname,
+  // Gesprächsnummer und Zeiten, nie Code, Sitzungs-ID, Antworten oder die Bedingung. Leerer Topic = Status aus.
+  var STATUS_URL = "https://ntfy.sh/";
+  var STATUS_TOPIC = "ba-status-b6a1fcb99a33e4d4f496"; // muss mit STATUS_TOPIC im Controller übereinstimmen
+  var HEARTBEAT_S = 120; // so oft meldet sich die Seite, solange sie offen ist
+
   // ---------- Ablauf (Reihenfolge fix) ----------
   // g = Gespräch 1 oder 2, form = welches Tally-Formular
   var STATES = [
@@ -257,6 +263,27 @@
     box.classList.toggle("unsaved", !saved);
   }
 
+  // ---------- Live-Status (nur Anzeige) ----------
+  // Feuer-und-vergessen: Fehler (kein Netz, Dienst down) werden verschluckt und beeinflussen den Ablauf nie.
+  function publishStatus(heartbeat) {
+    if (!STATUS_TOPIC || !session || session.index < 1) return;
+    var st = cur();
+    var body = JSON.stringify({
+      t: "state",
+      step: st.id,
+      g: st.g || 0,
+      ts: Date.now(),
+      entered: session.enteredAt || Date.now(),
+      hb: !!heartbeat,
+    });
+    try {
+      fetch(STATUS_URL + STATUS_TOPIC, { method: "POST", body: body, keepalive: true }).catch(function () {});
+    } catch (e) {}
+  }
+  setInterval(function () {
+    if (session && session.index > 0 && session.index < LAST) publishStatus(true);
+  }, HEARTBEAT_S * 1000);
+
   // ---------- Wechsel zwischen Zuständen ----------
   function clearTimers() {
     clearTimeout(advanceTimer);
@@ -273,6 +300,7 @@
     if (index === LAST) lsRemove(K_ACTIVE);
     else lsSet(K_ACTIVE, session.sid);
     logEntry(ereignis || "wechsel");
+    publishStatus(false);
     render();
   }
   function next(ereignis) {
@@ -824,6 +852,7 @@
       if (session.index !== LAST) {
         lsSet(K_ACTIVE, session.sid);
         logEntry("neu_geladen");
+        publishStatus(false);
       }
     }
     render();

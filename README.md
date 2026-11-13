@@ -45,6 +45,16 @@ Eine kleine statische Website (reines HTML, CSS und JavaScript, **kein Build, ke
 - **Szenarien:** Gespräch 1 ist „Autopanne in der Wüste“, Gespräch 2 „Eingeschneite Berghütte“. Jede Person hat 4 von 8 Gegenständen, zusammen wählt man 5 aus. Die Gegenstände der Vp stehen auf der Situation-Seite, die der Gesprächspartnerin nur im Admin-Modus.
 - **Nach dem Ende** gilt die Sitzung nicht mehr als aktiv. Wer die Seite danach öffnet, sieht wieder „Willkommen“ für die nächste Person.
 
+## Status für den Controller
+
+Die Seite meldet an den Experiment-Controller (Terminal der Versuchsleiterin), wo die Vp gerade ist. Das ist **nur eine Anzeige** und steuert nichts.
+
+- **Was gesendet wird:** Schrittname (z. B. `count1`), Gesprächsnummer und Zeitstempel, bei jedem Seitenwechsel und alle 120 s als Heartbeat. **Nie** Code, Sitzungs-ID, Antworten oder die Bedingung.
+- **Wohin:** An den öffentlichen Dienst ntfy.sh, Kanal `STATUS_TOPIC` oben in `app.js`. Der Controller liest denselben Kanal (Umgebungsvariable `STATUS_TOPIC`, siehe dessen README).
+- **Ausfall:** Fehler (kein Netz, Dienst down) werden verschluckt und beeinflussen den Ablauf nie.
+- **Abschalten:** `STATUS_TOPIC` in `app.js` auf `""` setzen.
+- Der Kanalname steht im öffentlichen Repo. Wer ihn kennt, kann nur die Schrittnamen lesen oder falsche senden. Es sind keine personenbezogenen Daten enthalten.
+
 ## Setup
 
 ### 1. Tally-Formulare vorbereiten
@@ -163,6 +173,7 @@ Zustände: `start`, `pre`, `sit1`, `pause1`, `count1`, `talk1`, `fb1`, `sit2`, `
 |---|---|
 | Formular-IDs | `app.js`, Konstante `TALLY` |
 | Länge des Countdowns vor dem Gespräch | `app.js`, `COUNTDOWN_S` |
+| Status für den Controller (Kanal, Heartbeat) | `app.js`, `STATUS_TOPIC`, `STATUS_URL`, `HEARTBEAT_S` |
 | Zeit bis zum Fallback-Knopf (Fragebogen lädt nicht) | `app.js`, `IFRAME_TIMEOUT_MS` |
 | Beschriftung der Ablauf-Leiste | `app.js`, Liste `STEPS` |
 | Welches Szenario in welchem Gespräch läuft | `app.js`, `SCENARIO_OF_G` |
