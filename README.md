@@ -18,7 +18,7 @@ Eine kleine statische Website (reines HTML, CSS und JavaScript, **kein Build, ke
 
 - **Wer bedient was:** Die Vp tippt sich allein durch die Seite. Die Versuchsleiterin öffnet die Seite, gibt das Tablet weiter und greift nur im Notfall ein (Admin-Modus).
 - **Bedingung und Reihenfolge kennt die Seite nicht.** Welche Bedingung (Teleprompter oder Webcam) in welchem Gespräch läuft, steuert der separate Experiment-Controller (Repo `bachelorarbeit`, Ordner `Camera Controller`, siehe dessen README). Die Zuordnung `code → Reihenfolge` wird erst bei der Auswertung ergänzt. Die Versuchsleiterin weiß dadurch während der Sitzung nicht, welche Bedingung läuft, und im Log steht sie auch nicht.
-- **Keine Verbindung zum Controller.** Die Seite und der Controller kennen sich nicht. Den Zeitpunkt, wann die Kamera an- und ausgeht, bestimmt die Versuchsleiterin per Hotkey (F9/F10) im Controller. Die Seite zeigt vor jedem Gespräch nur einen Countdown als Hinweis für die Vp. Jedes Tablet läuft für sich.
+- **Keine Verbindung zum Controller.** Die Seite und der Controller kennen sich nicht. Den Zeitpunkt, wann die Kamera an- und ausgeht, bestimmt die Versuchsleiterin per Hotkey (F9/F10) im Controller. Vor jedem Gespräch liest die Seite der Vp 2 bis 3 Einstiegsfragen vor (siehe „Einstiegsfragen“ unten). Jedes Tablet läuft für sich.
 - **VP-ID:** Der Controller liest den persönlichen Code der Vp aus der Tally-Einreichung des Fragebogens „Vorher“ (Hidden Field `code`). Das Feld muss in diesem Formular deshalb vorhanden sein.
 - **Kein Tracking.** Die einzige externe Abhängigkeit ist Tally (`tally.so`) für die Fragebögen.
 - **Sprache:** Deutsch, Ansprache „du“, die Gesprächspartnerin heißt „Gesprächspartnerin“.
@@ -31,7 +31,7 @@ Eine kleine statische Website (reines HTML, CSS und JavaScript, **kein Build, ke
 | 2 | **Fragebogen „Vorher“** (Tally) | Füllt den Fragebogen aus. | „Weiter“ nach dem Absenden |
 | 3 | **Situation und Gegenstände** (Gespräch 1) | Liest Situation, Aufgabe und ihre 4 Gegenstände. | „Weiter“ |
 | 4 | **STOPP-Seite** | Wartet, sagt der Gesprächspartnerin Bescheid, dass sie bereit ist. | „Ich bin bereit“ |
-| **Countdown** (5 s, `COUNTDOWN_S` in `app.js`) | Liest „Schau jetzt auf den Monitor“. Nur ein Hinweis, er löst nichts aus (die Kamera schaltet die Versuchsleiterin per Hotkey im Controller). | automatisch, danach Gespräch |
+| **Einstiegsfragen** (`qa1`/`qa2`) | Werden vorgelesen, auf dem Bildschirm steht nur „Frage 1 von 3“. Die Vp tippt nach jeder Frage „Nächste Frage“, nach der letzten erscheint nach ca. 1,5 s „Gespräch läuft“. Einstellungen in `config.js`. | Vp tippt Weiter |
 | 5 | **Gespräch läuft** (dunkel, kein Timer) | Führt das Gespräch, schaut nicht aufs Tablet. | „Gespräch beendet – weiter zum Fragebogen“ tippen |
 | 6 | **Fragebogen zum Gespräch** (Tally, `gespraech=1`) | Füllt den Fragebogen aus. | „Weiter“ nach dem Absenden |
 | 7–10 | dasselbe für **Gespräch 2** (zweites Szenario, `gespraech=2`) | | |
@@ -162,7 +162,7 @@ Alles liegt im `localStorage` des Tablets (Schlüssel `studie:<sitzung>:state`, 
 | `gespraech` | `1` oder `2` (leer außerhalb der Gespräche) |
 | `ts_iso` | Zeitstempel, ISO-8601, UTC, mit Millisekunden |
 | `ts_epoch_ms` | derselbe Zeitpunkt als Unix-Zeit in Millisekunden |
-| `ereignis` | `sitzung_gestartet`, `wechsel`, `form_abgesendet`, `weiter_manuell`, `neu_geladen`, `sprung_admin`, `countdown_ende` |
+| `ereignis` | `sitzung_gestartet`, `wechsel`, `form_abgesendet`, `weiter_manuell`, `neu_geladen`, `sprung_admin`, `qa_ende`, `fragen_zugewiesen:<IDs>`, `frage_gestellt:<ID>`, `frage_nochmal_<n>x:<ID>`, `fragen_ende`, `audio_fehler:<ID>` |
 
 Zustände: `start`, `pre`, `sit1`, `pause1`, `count1`, `talk1`, `fb1`, `sit2`, `pause2`, `count2`, `talk2`, `fb2`, `done`, `post`, `end`.
 
@@ -173,7 +173,8 @@ Zustände: `start`, `pre`, `sit1`, `pause1`, `count1`, `talk1`, `fb1`, `sit2`, `
 | Was | Wo |
 |---|---|
 | Formular-IDs | `app.js`, Konstante `TALLY` |
-| Länge des Countdowns vor dem Gespräch | `app.js`, `COUNTDOWN_S` |
+| Einstiegsfragen (Anzahl 2/3, Audio-Modus, Debug, Pause vor „Gespräch läuft“) | `config.js` |
+| Fragenpool und Ziehungs-Seed | `data/questions.json`, `data/draw.json` |
 | Status für den Controller (Kanal, Heartbeat) | `app.js`, `STATUS_TOPIC`, `STATUS_URL`, `HEARTBEAT_S` |
 | Zeit bis zum Fallback-Knopf (Fragebogen lädt nicht) | `app.js`, `IFRAME_TIMEOUT_MS` |
 | Beschriftung der Ablauf-Leiste | `app.js`, Liste `STEPS` |
@@ -207,3 +208,7 @@ archiv-szenarien/ frühere Szenario-Seite, wird nicht verwendet
 | Display geht aus | Wake Lock wird nur über HTTPS und in aktuellen Browsern unterstützt. Auf GitHub Pages testen, Bildschirmsperre des Tablets lang einstellen. |
 | Fortschritt weg nach Neustart | Privater Modus oder gelöschter Browser-Speicher. Normalen Tab verwenden, Logs nach jeder Sitzung sichern. |
 | Zwei Personen mit gleichem Code | Über die Spalte `sitzung` bzw. das Hidden Field `sitzung` in Tally unterscheiden. |
+
+## Einstiegsfragen
+
+Vor jedem Gespräch werden `n_questions` (2 oder 3) leichte Fragen vorgelesen (Stufe 1, 2, optional 3). Es gibt **keinen Plan**: Die Fragen ergeben sich aus dem selbstgewählten Code der Vp und einem festen Seed (`data/draw.json`) in `questions.js`. Pro Stufe wird gemischt, die erste Frage kommt in Gespräch 1, die zweite in Gespräch 2. Dadurch gibt es pro Person keine Frage doppelt. Ausgewogenheit über alle Personen ist nur näherungsweise gegeben, weil die Codes frei gewählt werden (`python3 tools/simulate_balance.py`). Der Controller rechnet dasselbe in `tools/question_draw.py` aus (`get_questions` in `experiment_controller.py`). **JS und Python müssen identisch bleiben** (Testvektoren in `tests/`). Den Seed nach Beginn der Datenerhebung nicht mehr ändern. Debug: `?debug=1` blendet den Fragetext ein. Test siehe `TESTING.md`.

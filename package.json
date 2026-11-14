@@ -1,0 +1,6 @@
+{
+  "name": "ba-scenarios-tests",
+  "private": true,
+  "scripts": { "test": "node tests/draw.test.js && node tests/page.test.js" },
+  "devDependencies": { "jsdom": "16.7.0" }
+}

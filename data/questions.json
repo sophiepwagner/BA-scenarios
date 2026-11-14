@@ -1,0 +1,92 @@
+[
+  {
+    "id": "S1-1",
+    "tier": 1,
+    "text": "Wie sieht für dich ein perfekter Tag aus?"
+  },
+  {
+    "id": "S1-2",
+    "tier": 1,
+    "text": "Welchen Ort auf der Welt würdest du gern einmal besuchen, und warum?"
+  },
+  {
+    "id": "S1-3",
+    "tier": 1,
+    "text": "Welches Essen könntest du jede Woche essen, ohne dass es dir langweilig wird?"
+  },
+  {
+    "id": "S1-4",
+    "tier": 1,
+    "text": "Was würdest du an einem Wochenende ohne jede Verpflichtung machen?"
+  },
+  {
+    "id": "S1-5",
+    "tier": 1,
+    "text": "Welche Fähigkeit würdest du gern sofort beherrschen?"
+  },
+  {
+    "id": "S1-6",
+    "tier": 1,
+    "text": "Welches Buch, Spiel oder welche Serie hat dich zuletzt richtig gepackt?"
+  },
+  {
+    "id": "S2-1",
+    "tier": 2,
+    "text": "Was machst du, um nach einem anstrengenden Tag abzuschalten?"
+  },
+  {
+    "id": "S2-2",
+    "tier": 2,
+    "text": "An welchen Ort aus deiner Kindheit denkst du gern zurück?"
+  },
+  {
+    "id": "S2-3",
+    "tier": 2,
+    "text": "Wofür warst du in letzter Zeit dankbar?"
+  },
+  {
+    "id": "S2-4",
+    "tier": 2,
+    "text": "Was war das Schönste, was du in diesem Jahr erlebt hast?"
+  },
+  {
+    "id": "S2-5",
+    "tier": 2,
+    "text": "Wer hat dich in deinem Leben besonders inspiriert?"
+  },
+  {
+    "id": "S2-6",
+    "tier": 2,
+    "text": "Was würdest du ein Jahr lang tun, wenn Geld und Zeit keine Rolle spielten?"
+  },
+  {
+    "id": "S3-1",
+    "tier": 3,
+    "text": "Wann warst du zuletzt richtig stolz auf dich?"
+  },
+  {
+    "id": "S3-2",
+    "tier": 3,
+    "text": "Was würdest du gern einmal ausprobieren, hast dich aber bisher nicht getraut?"
+  },
+  {
+    "id": "S3-3",
+    "tier": 3,
+    "text": "Was schätzt du an deinen engsten Freundschaften am meisten?"
+  },
+  {
+    "id": "S3-4",
+    "tier": 3,
+    "text": "Wann hast du zuletzt so richtig gelacht, und worüber?"
+  },
+  {
+    "id": "S3-5",
+    "tier": 3,
+    "text": "Welche Entscheidung hat dein Leben in eine neue Richtung gelenkt?"
+  },
+  {
+    "id": "S3-6",
+    "tier": 3,
+    "text": "Wie stellst du dir ein gutes Leben in zehn Jahren vor?"
+  }
+]

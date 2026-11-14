@@ -14,6 +14,7 @@
     <!-- Ablauf-Leiste: zeigt, wo man gerade ist (wird von app.js gefüllt; auf Start- und Gesprächs-Screen versteckt) -->
     <ol id="steps" class="steps" aria-label="Ablauf" hidden></ol>
 
+    <div id="qa-banner" class="qa-banner" role="alert" hidden></div>
     <main id="app">
       <!-- 1. Start: die Versuchsperson gibt ihren persönlichen Code ein -->
       <section id="s-start" class="screen narrow" hidden>
@@ -84,15 +85,22 @@
         <ol class="pause-list">
           <li>Sag deiner Gesprächspartnerin kurz Bescheid, dass du bereit bist.</li>
           <li>Das <span id="pause-nr">erste</span> Gespräch beginnt, sobald deine Gesprächspartnerin dir Bescheid gibt.</li>
-          <li>Tippe erst auf „Ich bin bereit“, wenn es losgeht. Danach läuft ein kurzer Countdown.</li>
+          <li>Tippe erst auf „Ich bin bereit“, wenn es losgeht. Danach hörst du ein paar kurze Fragen, die du deiner Gesprächspartnerin beantwortest.</li>
         </ol>
         <button type="button" id="btn-begin" class="primary">Ich bin bereit</button>
       </section>
 
-      <!-- 4b./8b. Countdown vor dem Gespräch: nur ein Hinweis für die Vp, löst nichts aus (keine Verbindung zum Controller) -->
-      <section id="s-count" class="screen narrow center" hidden>
-        <h1>Schau jetzt auf den Monitor</h1>
-        <p id="count-num" class="count-num" aria-live="polite"></p>
+      <!-- 4b./8b. Einstiegsfragen: werden vorgelesen, kein Fragetext auf dem Bildschirm (Eye-Tracker). Text nur mit ?debug=1. -->
+      <section id="s-qa" class="screen qa" hidden>
+        <div class="qa-main">
+          <p id="qa-count" class="qa-count"></p>
+          <div id="qa-icon" class="qa-icon" aria-hidden="true"><span></span><span></span><span></span></div>
+          <div id="qa-text-wrap"></div>
+        </div>
+        <div class="qa-bottom">
+          <button type="button" id="btn-qa-next" class="primary endbtn">Weiter</button>
+          <button type="button" id="btn-qa-again" class="qa-again">Frage nochmal hören</button>
+        </div>
       </section>
 
       <!-- 4./7. Gespräch läuft: ruhig, dunkel, kein Timer -->
@@ -153,6 +161,9 @@
     </div>
 
     <!-- Reihenfolge: icons und scenarios liefern Daten (window.ICONS, window.SCENARIOS) für app.js -->
+    <script src="config.js"></script>
+    <script src="questions.js"></script>
+    <script src="audio.js"></script>
     <script src="icons.js"></script>
     <script src="scenarios.js"></script>
     <script src="app.js"></script>

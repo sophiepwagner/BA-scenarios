@@ -17,7 +17,6 @@
   var TALLY_EMBED = "https://tally.so/embed/";
   var TALLY_SCRIPT = "https://tally.so/widgets/embed.js";
   var IFRAME_TIMEOUT_MS = 20000; // lädt der Fragebogen nicht, erscheint der Fallback-Knopf
-  var COUNTDOWN_S = 5; // Countdown "Schau jetzt auf den Monitor" vor jedem Gespräch (nur Hinweis, löst nichts aus)
 
   // Live-Status für die Versuchsleiterin (nur Anzeige im Controller, steuert nichts). Gesendet werden nur Schrittname,
   // Gesprächsnummer und Zeiten, nie Code, Sitzungs-ID, Antworten oder die Bedingung. Leerer Topic = Status aus.
@@ -32,12 +31,12 @@
     { id: "pre", screen: "s-pre", form: "pre" },
     { id: "sit1", screen: "s-sit", g: 1 },
     { id: "pause1", screen: "s-pause", g: 1 },
-    { id: "count1", screen: "s-count", g: 1 },
+    { id: "qa1", screen: "s-qa", g: 1 },
     { id: "talk1", screen: "s-talk", g: 1 },
     { id: "fb1", screen: "s-fb", form: "gespraech", g: 1 },
     { id: "sit2", screen: "s-sit", g: 2 },
     { id: "pause2", screen: "s-pause", g: 2 },
-    { id: "count2", screen: "s-count", g: 2 },
+    { id: "qa2", screen: "s-qa", g: 2 },
     { id: "talk2", screen: "s-talk", g: 2 },
     { id: "fb2", screen: "s-fb", form: "gespraech", g: 2 },
     { id: "done", screen: "s-done" },
@@ -48,7 +47,7 @@
 
   // Ablauf-Leiste oben: Abschnitte, in die die Zustände gruppiert werden
   var STEPS = ["Start", "Gespräch 1", "Gespräch 2", "Rückblick", "Fertig"];
-  var STEP_OF = { pre: 0, sit1: 1, pause1: 1, count1: 1, talk1: 1, fb1: 1, sit2: 2, pause2: 2, count2: 2, talk2: 2, fb2: 2, done: 3, post: 3, end: 4 };
+  var STEP_OF = { pre: 0, sit1: 1, pause1: 1, qa1: 1, talk1: 1, fb1: 1, sit2: 2, pause2: 2, qa2: 2, talk2: 2, fb2: 2, done: 3, post: 3, end: 4 };
 
   function $(id) {
     return document.getElementById(id);
@@ -301,6 +300,7 @@
     else lsSet(K_ACTIVE, session.sid);
     logEntry(ereignis || "wechsel");
     publishStatus(false);
+    qaFresh = true;
     render();
   }
   function next(ereignis) {
@@ -308,44 +308,160 @@
   }
 
   // ---------- Anzeige ----------
-  var SCREENS = ["s-start", "s-confirm", "s-pre", "s-fb", "s-post", "s-sit", "s-pause", "s-count", "s-talk", "s-done", "s-end"];
+  var SCREENS = ["s-start", "s-confirm", "s-pre", "s-fb", "s-post", "s-sit", "s-pause", "s-qa", "s-talk", "s-done", "s-end"];
   function render() {
     var st = cur();
     SCREENS.forEach(function (id) {
       $(id).hidden = id !== st.screen;
     });
-    document.body.classList.toggle("dark", st.id === "talk1" || st.id === "talk2");
+    document.body.classList.toggle("dark", st.id === "talk1" || st.id === "talk2" || st.screen === "s-qa");
     renderSteps(st);
     window.scrollTo(0, 0);
     if (st.screen === "s-sit") {
       $("sit-eyebrow").textContent = "Gespräch " + st.g;
       fillScenario(st.g);
     }
-    if (st.screen === "s-count") startCountdown(session.index);
+    if (st.screen === "s-qa") enterQa();
+    else QAudio.stop();
     if (st.screen === "s-pause") $("pause-nr").textContent = st.g === 1 ? "erste" : "zweite";
     if (st.form) buildTally(st);
     if (st.id === "start") renderSessions();
     renderAdmin();
   }
 
-  // ---------- Countdown vor dem Gespräch ----------
-  // Zählt herunter und geht dann automatisch ins Gespräch. Nutzt advanceTimer, damit go()/clearTimers() ihn abbrechen.
-  function startCountdown(idx) {
-    var n = COUNTDOWN_S;
-    $("count-num").textContent = String(n);
-    (function tick() {
-      advanceTimer = setTimeout(function () {
-        if (!session || session.index !== idx) return;
-        n--;
-        if (n <= 0) {
-          next("countdown_ende");
-        } else {
-          $("count-num").textContent = String(n);
-          tick();
-        }
-      }, 1000);
-    })();
+  // ---------- Einstiegsfragen (nach "Ich bin bereit", vor dem Gespräch) ----------
+  // Die Fragen werden nur vorgelesen. Auf dem Bildschirm steht "Frage 1 von 3", der Text nur im Debug-Modus.
+  // Nach jeder Frage wartet die Seite, bis die Vp (oder die Versuchsleiterin) "Weiter" tippt. Kein Timer.
+  var CFG = window.CONFIG || {};
+  var QA = { list: null, seed: null, byId: {}, error: null, ready: null };
+  var qaFresh = false; // true = Zustand wurde gerade durch eine Berührung erreicht (Ton darf starten)
+  var qaTextTimer = null;
+  function debugOn() {
+    return params.get("debug") === "1" || CFG.debug === true;
   }
+  function nQuestions() {
+    return CFG.n_questions === 2 ? 2 : 3;
+  }
+  function showBanner(msg) {
+    var b = $("qa-banner");
+    b.textContent = "Technischer Hinweis (für die Versuchsleitung, nicht für die Vp): " + msg;
+    b.hidden = false;
+  }
+  function loadQuestionData() {
+    function j(url) {
+      return fetch(url, { cache: "no-store" }).then(function (r) {
+        if (!r.ok) throw new Error(url + " konnte nicht geladen werden (HTTP " + r.status + ")");
+        return r.json();
+      });
+    }
+    QA.ready = Promise.all([j("data/questions.json"), j("data/draw.json")])
+      .then(function (res) {
+        QA.list = res[0];
+        QA.seed = res[1].seed;
+        res[0].forEach(function (q) {
+          QA.byId[q.id] = q;
+        });
+      })
+      .catch(function (e) {
+        QA.error = String((e && e.message) || e);
+        showBanner("Fragenpool nicht geladen: " + QA.error);
+      });
+    var mp3 = CFG.audio_mode === "mp3";
+    QAudio.init(4000).then(function (r) {
+      if (!r.ok) {
+        console.warn("[audio] " + r.message);
+        if (!mp3) showBanner(r.message);
+      } else console.log("[audio] Stimme: " + r.voice);
+    });
+  }
+  function qaIds() {
+    return QUESTIONS.forBlock(session.code, QA.seed, QA.list, cur().g, nQuestions());
+  }
+  function enterQa() {
+    var idx = session.index;
+    var fresh = qaFresh;
+    qaFresh = false;
+    $("s-qa").classList.remove("ending");
+    $("btn-qa-next").disabled = false;
+    QA.ready.then(function () {
+      if (!session || session.index !== idx) return;
+      if (QA.error) return;
+      if (session.qaFor !== idx) {
+        session.qaFor = idx;
+        session.qi = 0;
+        session.replays = {};
+        lsSet(kState(session.sid), session);
+        logEntry("fragen_zugewiesen:" + qaIds().join("|"));
+      }
+      showQuestion(fresh ? "frage_gestellt" : null);
+    });
+  }
+  // Zeigt den Zähler (und im Debug den Text) und spielt die Frage ab, wenn ein Ereignisname übergeben wird
+  function showQuestion(ereignis) {
+    var ids = qaIds();
+    var qi = Math.min(session.qi || 0, ids.length - 1);
+    var q = QA.byId[ids[qi]];
+    $("qa-count").textContent = "Frage " + (qi + 1) + " von " + ids.length;
+    $("btn-qa-next").textContent = qi < ids.length - 1 ? "Nächste Frage" : "Weiter";
+    var wrap = $("qa-text-wrap");
+    clearTimeout(qaTextTimer);
+    wrap.innerHTML = "";
+    var secs = Number(CFG.question_display_seconds) || 0;
+    if (debugOn() || secs > 0) {
+      var p = document.createElement("p");
+      p.className = "qa-debug-text";
+      p.textContent = q.id + ": " + q.text;
+      wrap.appendChild(p);
+      if (!debugOn()) qaTextTimer = setTimeout(function () { wrap.innerHTML = ""; }, secs * 1000);
+    }
+    if (ereignis) playQuestion(q, ereignis);
+  }
+  function playQuestion(q, ereignis) {
+    var icon = $("qa-icon");
+    icon.classList.add("speaking");
+    var idx = session.index;
+    QAudio.speak(q)
+      .then(function (kind) {
+        console.log("[audio] " + q.id + " gespielt über " + kind);
+      })
+      .catch(function (e) {
+        logEntry("audio_fehler:" + q.id);
+        showBanner("Ton für " + q.id + " fehlgeschlagen: " + ((e && e.message) || e));
+      })
+      .then(function () {
+        if (session && session.index === idx) icon.classList.remove("speaking");
+      });
+    logEntry(ereignis + ":" + q.id);
+  }
+  $("btn-qa-again").addEventListener("click", function () {
+    if (!session || cur().screen !== "s-qa" || QA.error) return;
+    var ids = qaIds();
+    var q = QA.byId[ids[Math.min(session.qi || 0, ids.length - 1)]];
+    session.replays = session.replays || {};
+    session.replays[q.id] = (session.replays[q.id] || 0) + 1;
+    lsSet(kState(session.sid), session);
+    playQuestion(q, "frage_nochmal_" + session.replays[q.id] + "x");
+  });
+  $("btn-qa-next").addEventListener("click", function () {
+    if (!session || cur().screen !== "s-qa") return;
+    var ids = qaIds();
+    if ((session.qi || 0) < ids.length - 1) {
+      session.qi = (session.qi || 0) + 1;
+      lsSet(kState(session.sid), session);
+      showQuestion("frage_gestellt");
+      return;
+    }
+    // Letzte Frage beantwortet: kurz ruhig bleiben, dann erscheint "Gespräch läuft"
+    QAudio.stop();
+    $("btn-qa-next").disabled = true;
+    $("s-qa").classList.add("ending");
+    logEntry("fragen_ende");
+    var idx = session.index;
+    clearTimeout(advanceTimer);
+    advanceTimer = setTimeout(function () {
+      if (session && session.index === idx) next("qa_ende");
+    }, Number(CFG.talk_delay_ms) || 1500);
+  });
 
   // ---------- Situation und Gegenstände (eigene Seite vor jedem Gespräch) ----------
   var TAKE = 5; // so viele Gegenstände dürfen mitgenommen werden
@@ -397,7 +513,7 @@
   function renderSteps(st) {
     var ol = $("steps");
     var cur = STEP_OF[st.id];
-    ol.hidden = cur === undefined || st.id === "talk1" || st.id === "talk2";
+    ol.hidden = cur === undefined || st.id === "talk1" || st.id === "talk2" || st.screen === "s-qa";
     if (ol.hidden) return;
     if (!ol.children.length) {
       STEPS.forEach(function (label) {
@@ -620,12 +736,12 @@
     pre: "Fragebogen vorher",
     sit1: "Situation + Gegenstände 1",
     pause1: "STOPP-Seite 1",
-    count1: "Countdown 1",
+    qa1: "Einstiegsfragen 1",
     talk1: "Gespräch 1 (dunkel)",
     fb1: "Fragebogen nach Gespräch 1",
     sit2: "Situation + Gegenstände 2",
     pause2: "STOPP-Seite 2",
-    count2: "Countdown 2",
+    qa2: "Einstiegsfragen 2",
     talk2: "Gespräch 2 (dunkel)",
     fb2: "Fragebogen nach Gespräch 2",
     done: "Geschafft",
@@ -638,12 +754,12 @@
     pre: "Fragebogen vorher",
     sit1: "Situation 1",
     pause1: "STOPP 1",
-    count1: "Countdown 1",
+    qa1: "Einstiegsfragen 1",
     talk1: "Gespräch 1",
     fb1: "Fragebogen 1",
     sit2: "Situation 2",
     pause2: "STOPP 2",
-    count2: "Countdown 2",
+    qa2: "Einstiegsfragen 2",
     talk2: "Gespräch 2",
     fb2: "Fragebogen 2",
     done: "Geschafft",
@@ -809,6 +925,11 @@
     } catch (e) {}
   }
   document.addEventListener("pointerdown", requestWake);
+  ["click", "touchend"].forEach(function (t) {
+    document.addEventListener(t, function () {
+      QAudio.unlock();
+    });
+  });
   document.addEventListener("visibilitychange", function () {
     if (document.visibilityState === "visible") requestWake();
   });
@@ -842,6 +963,7 @@
 
   // ---------- Beim Laden ----------
   document.title = "Studie";
+  loadQuestionData();
   (function init() {
     // Laufende Sitzung fortsetzen (Neuladen), sonst Startseite. Fertige Sitzungen werden nicht wieder aktiv.
     var sid = lsGet(K_ACTIVE);
