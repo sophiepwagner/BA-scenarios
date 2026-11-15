@@ -10,7 +10,7 @@
 })(typeof self !== "undefined" ? self : this, function () {
   "use strict";
 
-  // FNV-1a, 32 Bit (Code ist ASCII: a-z, 0-9)
+  // FNV-1a, 32 Bit (Code: Buchstaben inkl. Umlaute und Ziffern; es zählt je Zeichen die untere Hälfte, Python macht dasselbe)
   function fnv1a(str) {
     var h = 0x811c9dc5;
     for (var i = 0; i < str.length; i++) {

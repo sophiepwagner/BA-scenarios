@@ -100,7 +100,7 @@
   var submittedFor = -1; // Index, für den "FormSubmitted" schon verarbeitet wurde
 
   function validCode(c) {
-    return /^[a-z0-9]{5}$/.test(c);
+    return /^[\p{L}\p{N}]{5}$/u.test(c);
   }
   function cur() {
     return STATES[session ? session.index : 0];
@@ -677,11 +677,12 @@
     go(1);
   }
   $("in-code").addEventListener("input", function () {
-    this.value = this.value.toLowerCase().replace(/[^a-z0-9]/g, "");
+    // Buchstaben (auch Umlaute) und Ziffern; immer in der zusammengesetzten Form (ö als ein Zeichen), damit Tablet und Controller dasselbe sehen
+    this.value = this.value.normalize("NFC").toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
   });
   $("start-form").addEventListener("submit", function (e) {
     e.preventDefault();
-    var code = $("in-code").value.trim().toLowerCase();
+    var code = $("in-code").value.trim().normalize("NFC").toLowerCase();
     var err = $("start-error");
     err.hidden = true;
     if (!validCode(code)) {

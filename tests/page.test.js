@@ -201,6 +201,15 @@ const visible = (d, id) => !d.getElementById(id).hidden;
   assert(!p.d.getElementById("qa-banner").hidden && /deutsche Stimme/.test(p.d.getElementById("qa-banner").textContent));
   p.w.close();
 
+  // Code mit Umlaut wird nicht verworfen (Großbuchstaben werden klein, Sonderzeichen entfernt)
+  p = boot({});
+  await wait(30);
+  const inp = p.d.getElementById("in-code");
+  inp.value = "ÖB7x-";
+  inp.dispatchEvent(new p.w.Event("input"));
+  assert.strictEqual(inp.value, "öb7x", "Umlaut bleibt erhalten");
+  p.w.close();
+
   console.log("page.test.js: ok");
 })().catch((e) => {
   console.error(e);
