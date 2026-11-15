@@ -12,7 +12,7 @@ const text = {};
 list.forEach((q) => (text[q.id] = q.text));
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const CODE = "abc12";
-const IDX = { pause1: 3, qa1: 4, talk1: 5 };
+const IDX = { pause1: 2, qa1: 3, sit1: 4, talk1: 5, pause2: 7 };
 
 // Baut die Seite mit eingebetteten Skripten; opts: config, search, ls (localStorage-Stand), mp3 (vorhandene Dateien), files404
 function boot(opts) {
@@ -20,7 +20,7 @@ function boot(opts) {
   let html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
   html = html.replace(/<script src="([^"]+)"><\/script>/g, (m, src) => {
     let code = fs.readFileSync(path.join(ROOT, src), "utf8");
-    if (src === "config.js") code += "\nObject.assign(window.CONFIG," + JSON.stringify(Object.assign({ n_questions: 3 }, opts.config)) + ");";
+    if (src === "config.js") code += "\nObject.assign(window.CONFIG," + JSON.stringify(Object.assign({ n_questions: 3, audio_mode: "tts", show_text: false }, opts.config)) + ");";
     return "<script>" + code.replace(/<\/script>/g, "<\\/script>") + "</script>";
   });
   const spoken = [];
@@ -125,11 +125,13 @@ const visible = (d, id) => !d.getElementById(id).hidden;
   r.d.getElementById("btn-qa-next").click();
   assert.strictEqual(r.d.getElementById("qa-count").textContent, "Frage 3 von 3");
   assert.strictEqual(r.d.getElementById("btn-qa-next").textContent, "Weiter");
-  // Ende: nach kurzer Pause erscheint "Gespräch läuft"
+  // Ende: nach kurzer Pause erscheint die Situation (danach erst das Gespräch)
   r.d.getElementById("btn-qa-next").click();
-  assert(!visible(r.d, "s-talk"));
+  assert(!visible(r.d, "s-sit"));
   await wait(60);
-  assert(visible(r.d, "s-talk"), "Gespräch-Seite nach Pause");
+  assert(visible(r.d, "s-sit"), "Situation nach den Einstiegsfragen");
+  r.d.getElementById("btn-sit").click();
+  assert(visible(r.d, "s-talk"), "danach Gespräch");
   assert(!visible(r.d, "s-qa"));
   r.w.close();
 
@@ -147,7 +149,7 @@ const visible = (d, id) => !d.getElementById(id).hidden;
   // Block 2 nutzt andere Fragen als Block 1
   const b2 = Q.forBlock(CODE, seed, list, 2, 3);
   assert(b2.every((i) => exp.indexOf(i) < 0));
-  p = boot({ ls: lsFor(8), config: {} });
+  p = boot({ ls: lsFor(IDX.pause2), config: {} });
   await wait(30);
   p.d.getElementById("btn-begin").click();
   await wait(10);
@@ -161,6 +163,20 @@ const visible = (d, id) => !d.getElementById(id).hidden;
   await wait(10);
   assert(p.d.body.textContent.includes(text[exp[0]]), "Debug zeigt Text");
   p.w.close();
+
+  // Standard: nur Text, kein Ton, Fragetext sichtbar, kein "nochmal hören"
+  p = boot({ ls: lsFor(IDX.pause1), config: { audio_mode: "off", show_text: true } });
+  await wait(30);
+  p.d.getElementById("btn-begin").click();
+  await wait(10);
+  assert(p.d.getElementById("qa-text-wrap").textContent.includes(text[exp[0]]), "Fragetext sichtbar");
+  assert.deepStrictEqual(p.spoken, [], "kein Ton");
+  assert(p.d.getElementById("btn-qa-again").hidden, "kein nochmal hören");
+  assert(log(p.w).includes("frage_gestellt:" + exp[0]));
+  p.w.close();
+
+  // Ablauf-Reihenfolge: pre, pause1, qa1, sit1, talk1, fb1, pause2, qa2, sit2, talk2, fb2
+  assert.strictEqual(IDX.sit1, IDX.qa1 + 1);
 
   // 5. mp3: vorhandene Datei wird gespielt, fehlende fällt auf tts zurück (mit Konsolen-Log)
   p = boot({ ls: lsFor(IDX.pause1), config: { audio_mode: "mp3" }, mp3: [exp[0]] });

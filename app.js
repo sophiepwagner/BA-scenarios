@@ -31,14 +31,14 @@
   var STATES = [
     { id: "start", screen: "s-start" },
     { id: "pre", screen: "s-pre", form: "pre" },
-    { id: "sit1", screen: "s-sit", g: 1 },
     { id: "pause1", screen: "s-pause", g: 1 },
     { id: "qa1", screen: "s-qa", g: 1 },
+    { id: "sit1", screen: "s-sit", g: 1 },
     { id: "talk1", screen: "s-talk", g: 1 },
     { id: "fb1", screen: "s-fb", form: "gespraech", g: 1 },
-    { id: "sit2", screen: "s-sit", g: 2 },
     { id: "pause2", screen: "s-pause", g: 2 },
     { id: "qa2", screen: "s-qa", g: 2 },
+    { id: "sit2", screen: "s-sit", g: 2 },
     { id: "talk2", screen: "s-talk", g: 2 },
     { id: "fb2", screen: "s-fb", form: "gespraech", g: 2 },
     { id: "done", screen: "s-done" },
@@ -49,7 +49,7 @@
 
   // Ablauf-Leiste oben: Abschnitte, in die die Zustände gruppiert werden
   var STEPS = ["Start", "Gespräch 1", "Gespräch 2", "Rückblick", "Fertig"];
-  var STEP_OF = { pre: 0, sit1: 1, pause1: 1, qa1: 1, talk1: 1, fb1: 1, sit2: 2, pause2: 2, qa2: 2, talk2: 2, fb2: 2, done: 3, post: 3, end: 4 };
+  var STEP_OF = { pre: 0, pause1: 1, qa1: 1, sit1: 1, talk1: 1, fb1: 1, pause2: 2, qa2: 2, sit2: 2, talk2: 2, fb2: 2, done: 3, post: 3, end: 4 };
 
   function $(id) {
     return document.getElementById(id);
@@ -343,6 +343,13 @@
   function debugOn() {
     return params.get("debug") === "1" || CFG.debug === true;
   }
+  // Ton nur, wenn audio_mode "tts" oder "mp3" ist ("off" = Fragen werden nur angezeigt)
+  function audioOn() {
+    return CFG.audio_mode === "tts" || CFG.audio_mode === "mp3";
+  }
+  function textOn() {
+    return CFG.show_text !== false || debugOn() || Number(CFG.question_display_seconds) > 0;
+  }
   function nQuestions() {
     return CFG.n_questions === 2 ? 2 : 3;
   }
@@ -370,6 +377,7 @@
         QA.error = String((e && e.message) || e);
         showBanner("Fragenpool nicht geladen: " + QA.error);
       });
+    if (!audioOn()) return;
     var mp3 = CFG.audio_mode === "mp3";
     QAudio.init(4000).then(function (r) {
       if (!r.ok) {
@@ -411,16 +419,22 @@
     clearTimeout(qaTextTimer);
     wrap.innerHTML = "";
     var secs = Number(CFG.question_display_seconds) || 0;
-    if (debugOn() || secs > 0) {
+    if (textOn()) {
       var p = document.createElement("p");
-      p.className = "qa-debug-text";
-      p.textContent = q.id + ": " + q.text;
+      p.className = debugOn() ? "qa-debug-text" : "qa-question";
+      p.textContent = debugOn() ? q.id + ": " + q.text : q.text;
       wrap.appendChild(p);
-      if (!debugOn()) qaTextTimer = setTimeout(function () { wrap.innerHTML = ""; }, secs * 1000);
+      if (CFG.show_text === false && !debugOn()) qaTextTimer = setTimeout(function () { wrap.innerHTML = ""; }, secs * 1000);
     }
+    $("btn-qa-again").hidden = !audioOn();
+    $("qa-icon").hidden = !audioOn();
     if (ereignis) playQuestion(q, ereignis);
   }
   function playQuestion(q, ereignis) {
+    if (!audioOn()) {
+      logEntry(ereignis + ":" + q.id);
+      return;
+    }
     var icon = $("qa-icon");
     icon.classList.add("speaking");
     var idx = session.index;
@@ -455,7 +469,7 @@
       showQuestion("frage_gestellt");
       return;
     }
-    // Letzte Frage beantwortet: kurz ruhig bleiben, dann erscheint "Gespräch läuft"
+    // Letzte Frage beantwortet: kurz ruhig bleiben, dann erscheint die Situation
     QAudio.stop();
     $("btn-qa-next").disabled = true;
     $("s-qa").classList.add("ending");
@@ -738,14 +752,14 @@
   // Namen der Seiten für die Sprung-Auswahl (nur Admin, zum Testen)
   var JUMP_LABELS = {
     pre: "Fragebogen vorher",
-    sit1: "Situation + Gegenstände 1",
     pause1: "STOPP-Seite 1",
     qa1: "Einstiegsfragen 1",
+    sit1: "Situation + Gegenstände 1",
     talk1: "Gespräch 1 (dunkel)",
     fb1: "Fragebogen nach Gespräch 1",
-    sit2: "Situation + Gegenstände 2",
     pause2: "STOPP-Seite 2",
     qa2: "Einstiegsfragen 2",
+    sit2: "Situation + Gegenstände 2",
     talk2: "Gespräch 2 (dunkel)",
     fb2: "Fragebogen nach Gespräch 2",
     done: "Geschafft",
@@ -756,14 +770,14 @@
   var ADMIN_LABEL = {
     start: "Start",
     pre: "Fragebogen vorher",
-    sit1: "Situation 1",
     pause1: "STOPP 1",
     qa1: "Einstiegsfragen 1",
+    sit1: "Situation 1",
     talk1: "Gespräch 1",
     fb1: "Fragebogen 1",
-    sit2: "Situation 2",
     pause2: "STOPP 2",
     qa2: "Einstiegsfragen 2",
+    sit2: "Situation 2",
     talk2: "Gespräch 2",
     fb2: "Fragebogen 2",
     done: "Geschafft",

@@ -18,7 +18,7 @@ Eine kleine statische Website (reines HTML, CSS und JavaScript, **kein Build, ke
 
 - **Wer bedient was:** Die Vp tippt sich allein durch die Seite. Die Versuchsleiterin öffnet die Seite, gibt das Tablet weiter und greift nur im Notfall ein (Admin-Modus).
 - **Bedingung und Reihenfolge kennt die Seite nicht.** Welche Bedingung (Teleprompter oder Webcam) in welchem Gespräch läuft, steuert der separate Experiment-Controller (Repo `bachelorarbeit`, Ordner `Camera Controller`, siehe dessen README). Die Zuordnung `code → Reihenfolge` wird erst bei der Auswertung ergänzt. Die Versuchsleiterin weiß dadurch während der Sitzung nicht, welche Bedingung läuft, und im Log steht sie auch nicht.
-- **Keine Verbindung zum Controller.** Die Seite und der Controller kennen sich nicht. Den Zeitpunkt, wann die Kamera an- und ausgeht, bestimmt die Versuchsleiterin per Hotkey (F9/F10) im Controller. Vor jedem Gespräch liest die Seite der Vp 2 bis 3 Einstiegsfragen vor (siehe „Einstiegsfragen“ unten). Jedes Tablet läuft für sich.
+- **Keine Verbindung zum Controller.** Die Seite und der Controller kennen sich nicht. Den Zeitpunkt, wann die Kamera an- und ausgeht, bestimmt die Versuchsleiterin per Hotkey (F9/F10) im Controller. Zu Beginn jedes Gesprächs zeigt die Seite der Vp 2 bis 3 Einstiegsfragen an (siehe „Einstiegsfragen“ unten). Jedes Tablet läuft für sich.
 - **VP-ID:** Der Controller liest den persönlichen Code der Vp aus der Tally-Einreichung des Fragebogens „Vorher“ (Hidden Field `code`). Das Feld muss in diesem Formular deshalb vorhanden sein.
 - **Kein Tracking.** Die einzige externe Abhängigkeit ist Tally (`tally.so`) für die Fragebögen.
 - **Sprache:** Deutsch, Ansprache „du“, die Gesprächspartnerin heißt „Gesprächspartnerin“.
@@ -29,9 +29,9 @@ Eine kleine statische Website (reines HTML, CSS und JavaScript, **kein Build, ke
 |---|---|---|---|
 | 1 | **Willkommen** | Gibt ihren persönlichen Code ein (5 Zeichen). | „Weiter“, dann Bestätigung („Stimmt dein Code?“) |
 | 2 | **Fragebogen „Vorher“** (Tally) | Füllt den Fragebogen aus. | „Weiter“ nach dem Absenden |
-| 3 | **Situation und Gegenstände** (Gespräch 1) | Liest Situation, Aufgabe und ihre 4 Gegenstände. | „Weiter“ |
-| 4 | **STOPP-Seite** | Wartet, sagt der Gesprächspartnerin Bescheid, dass sie bereit ist. | „Ich bin bereit“ |
-| **Einstiegsfragen** (`qa1`/`qa2`) | Werden vorgelesen, auf dem Bildschirm steht nur „Frage 1 von 3“. Die Vp tippt nach jeder Frage „Nächste Frage“, nach der letzten erscheint nach ca. 1,5 s „Gespräch läuft“. Einstellungen in `config.js`. | Vp tippt Weiter |
+| 3 | **STOPP-Seite** | Wartet, sagt der Gesprächspartnerin Bescheid, dass sie bereit ist. Versuchsleiterin schaltet danach die Kamera an (F9). | „Ich bin bereit“ |
+| 4 | **Einstiegsfragen** (`qa1`/`qa2`, Kennenlernfragen) | Die 2 bis 3 Fragen stehen als Text auf dem Bildschirm, ohne Ton. Die Vp beantwortet sie der Gesprächspartnerin. Nach der letzten erscheint nach ca. 1,5 s die Situation. Einstellungen in `config.js`. | „Nächste Frage“ / „Weiter“ |
+| 4b | **Situation und Gegenstände** | Liest Situation, Aufgabe und ihre 4 Gegenstände. | „Weiter“ |
 | 5 | **Gespräch läuft** (dunkel, kein Timer) | Führt das Gespräch, schaut nicht aufs Tablet. | „Gespräch beendet – weiter zum Fragebogen“ tippen |
 | 6 | **Fragebogen zum Gespräch** (Tally, `gespraech=1`) | Füllt den Fragebogen aus. | „Weiter“ nach dem Absenden |
 | 7–10 | dasselbe für **Gespräch 2** (zweites Szenario, `gespraech=2`) | | |
@@ -164,7 +164,7 @@ Alles liegt im `localStorage` des Tablets (Schlüssel `studie:<sitzung>:state`, 
 | `ts_epoch_ms` | derselbe Zeitpunkt als Unix-Zeit in Millisekunden |
 | `ereignis` | `sitzung_gestartet`, `wechsel`, `form_abgesendet`, `weiter_manuell`, `neu_geladen`, `sprung_admin`, `qa_ende`, `fragen_zugewiesen:<IDs>`, `frage_gestellt:<ID>`, `frage_nochmal_<n>x:<ID>`, `fragen_ende`, `audio_fehler:<ID>` |
 
-Zustände: `start`, `pre`, `sit1`, `pause1`, `count1`, `talk1`, `fb1`, `sit2`, `pause2`, `count2`, `talk2`, `fb2`, `done`, `post`, `end`.
+Zustände: `start`, `pre`, `pause1`, `qa1`, `sit1`, `talk1`, `fb1`, `pause2`, `qa2`, `sit2`, `talk2`, `fb2`, `done`, `post`, `end`.
 
 **Reihenfolge und Bedingung** stehen weder im Log noch in den Tally-Daten. Sie werden bei der Auswertung über den Code (bzw. die Sitzungs-ID) ergänzt.
 
@@ -211,4 +211,4 @@ archiv-szenarien/ frühere Szenario-Seite, wird nicht verwendet
 
 ## Einstiegsfragen
 
-Vor jedem Gespräch werden `n_questions` (2 oder 3) leichte Fragen vorgelesen (Stufe 1, 2, optional 3). Es gibt **keinen Plan**: Die Fragen ergeben sich aus dem selbstgewählten Code der Vp und einem festen Seed (`data/draw.json`) in `questions.js`. Pro Stufe wird gemischt, die erste Frage kommt in Gespräch 1, die zweite in Gespräch 2. Dadurch gibt es pro Person keine Frage doppelt. Ausgewogenheit über alle Personen ist nur näherungsweise gegeben, weil die Codes frei gewählt werden (`python3 tools/simulate_balance.py`). Der Controller rechnet dasselbe in `tools/question_draw.py` aus (`get_questions` in `experiment_controller.py`). **JS und Python müssen identisch bleiben** (Testvektoren in `tests/`). Den Seed nach Beginn der Datenerhebung nicht mehr ändern. Debug: `?debug=1` blendet den Fragetext ein. Test siehe `TESTING.md`.
+Zu Beginn jedes Gesprächs werden `n_questions` (2 oder 3) leichte Fragen angezeigt (Standard: nur Text, `audio_mode: "off"`; Sprachausgabe nur mit `"tts"`/`"mp3"`) (Stufe 1, 2, optional 3). Es gibt **keinen Plan**: Die Fragen ergeben sich aus dem selbstgewählten Code der Vp und einem festen Seed (`data/draw.json`) in `questions.js`. Pro Stufe wird gemischt, die erste Frage kommt in Gespräch 1, die zweite in Gespräch 2. Dadurch gibt es pro Person keine Frage doppelt. Ausgewogenheit über alle Personen ist nur näherungsweise gegeben, weil die Codes frei gewählt werden (`python3 tools/simulate_balance.py`). Der Controller rechnet dasselbe in `tools/question_draw.py` aus (`get_questions` in `experiment_controller.py`). **JS und Python müssen identisch bleiben** (Testvektoren in `tests/`). Den Seed nach Beginn der Datenerhebung nicht mehr ändern. Mit `show_text: false` verschwindet der Text (dann nur mit Ton sinnvoll). Test siehe `TESTING.md`.

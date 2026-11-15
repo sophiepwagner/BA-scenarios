@@ -780,6 +780,13 @@ body { padding-bottom: var(--admin-h, 0px); }
 @media (prefers-reduced-motion: reduce) {
   .qa-icon.speaking span { animation: none; }
 }
+.qa-question {
+  font-size: 2.2rem;
+  line-height: 1.35;
+  text-align: center;
+  max-width: 32ch;
+  margin: 1.5rem auto 0;
+}
 .qa-debug-text {
   max-width: 640px;
   margin: 28px auto 0;
