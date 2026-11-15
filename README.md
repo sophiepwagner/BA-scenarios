@@ -49,12 +49,12 @@ Eine kleine statische Website (reines HTML, CSS und JavaScript, **kein Build, ke
 
 Die Seite meldet an den Experiment-Controller (Terminal der Versuchsleiterin), wo die Vp gerade ist. Das ist **nur eine Anzeige** und steuert nichts.
 
-- **Was gesendet wird:** Schrittname (z. B. `count1`), Gesprächsnummer und Zeitstempel, bei jedem Seitenwechsel und alle 120 s als Heartbeat. **Nie** Code, Sitzungs-ID, Antworten oder die Bedingung.
+- **Was gesendet wird:** Schrittname (z. B. `count1`), Gesprächsnummer und Zeitstempel, bei jedem Seitenwechsel und alle 300 s als Heartbeat. Auf der ersten Seite (Fragebogen „Vorher“) steht zusätzlich der **Vp-Code** (Pseudonym) dabei, damit der Controller ihn vor dem ECG-Start anzeigen kann. **Nie** Sitzungs-ID, Antworten oder die Bedingung.
 - **Wohin:** An den öffentlichen Dienst ntfy.sh, Kanal `STATUS_TOPIC` oben in `app.js`. Der Controller liest denselben Kanal (Umgebungsvariable `STATUS_TOPIC`, siehe dessen README).
 - **Ausfall:** Fehler (kein Netz, Dienst down) werden verschluckt und beeinflussen den Ablauf nie.
 - **Im Admin-Modus** (`?admin=1`) wird nichts gesendet, damit dein Laptop den Status der Vp nicht stört.
 - **Abschalten:** `STATUS_TOPIC` in `app.js` auf `""` setzen.
-- Der Kanalname steht im öffentlichen Repo. Wer ihn kennt, kann nur die Schrittnamen lesen oder falsche senden. Es sind keine personenbezogenen Daten enthalten.
+- Der Kanalname steht im öffentlichen Repo. Wer ihn kennt, kann nur die Schrittnamen lesen oder falsche senden. Enthalten ist nur das Pseudonym (Vp-Code), keine Namen, Antworten oder Kondition. Limit des Dienstes ohne Account: 250 Nachrichten pro 12 Stunden und IP (pro Sitzung ca. 40).
 
 ## Setup
 

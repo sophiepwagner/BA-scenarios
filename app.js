@@ -18,11 +18,13 @@
   var TALLY_SCRIPT = "https://tally.so/widgets/embed.js";
   var IFRAME_TIMEOUT_MS = 20000; // lädt der Fragebogen nicht, erscheint der Fallback-Knopf
 
-  // Live-Status für die Versuchsleiterin (nur Anzeige im Controller, steuert nichts). Gesendet werden nur Schrittname,
-  // Gesprächsnummer und Zeiten, nie Code, Sitzungs-ID, Antworten oder die Bedingung. Leerer Topic = Status aus.
+  // Live-Status für die Versuchsleiterin (nur Anzeige im Controller, steuert nichts). Gesendet werden Schrittname,
+  // Gesprächsnummer und Zeiten, auf der ersten Seite (Fragebogen "Vorher") zusätzlich der Vp-Code (ein Pseudonym,
+  // damit die Versuchsleiterin ihn vor dem Start des ECG-Recorders sieht). Nie Sitzungs-ID, Antworten oder die
+  // Bedingung. Leerer Topic = Status aus.
   var STATUS_URL = "https://ntfy.sh/";
   var STATUS_TOPIC = "ba-status-b6a1fcb99a33e4d4f496"; // muss mit STATUS_TOPIC im Controller übereinstimmen
-  var HEARTBEAT_S = 120; // so oft meldet sich die Seite, solange sie offen ist
+  var HEARTBEAT_S = 300; // so oft meldet sich die Seite, solange sie offen ist
 
   // ---------- Ablauf (Reihenfolge fix) ----------
   // g = Gespräch 1 oder 2, form = welches Tally-Formular
@@ -267,14 +269,16 @@
   function publishStatus(heartbeat) {
     if (!STATUS_TOPIC || admin || !session || session.index < 1) return;
     var st = cur();
-    var body = JSON.stringify({
+    var msg = {
       t: "state",
       step: st.id,
       g: st.g || 0,
       ts: Date.now(),
       entered: session.enteredAt || Date.now(),
       hb: !!heartbeat,
-    });
+    };
+    if (st.id === "pre") msg.code = session.code; // nur auf der ersten Seite nach dem Start
+    var body = JSON.stringify(msg);
     try {
       fetch(STATUS_URL + STATUS_TOPIC, { method: "POST", body: body, keepalive: true }).catch(function () {});
     } catch (e) {}
