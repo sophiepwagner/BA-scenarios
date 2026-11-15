@@ -278,7 +278,7 @@
       hb: !!heartbeat,
     };
     if (st.id === "pre") msg.code = session.code; // nur auf der ersten Seite nach dem Start
-    if (st.screen === "s-qa") msg.qi = session.qi || 0; // welche Einstiegsfrage gerade dran ist (0 = erste); der Controller kennt die Fragen selbst
+    if (st.screen === "s-qa") msg.qi = session.qaFor === session.index ? session.qi || 0 : 0; // Nummer der aktuellen Einstiegsfrage (0 = erste). Gilt erst nach enterQa, sonst steht noch der Wert des vorigen Gesprächs drin.
     var body = JSON.stringify(msg);
     try {
       fetch(STATUS_URL + STATUS_TOPIC, { method: "POST", body: body, keepalive: true }).catch(function () {});

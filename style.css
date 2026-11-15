@@ -805,6 +805,10 @@ body { padding-bottom: var(--admin-h, 0px); }
   margin: 0 auto;
   text-align: center;
 }
+.qa-icon[hidden],
+.qa-again[hidden] {
+  display: none;
+}
 .qa-again {
   margin-top: 14px;
   background: transparent;
