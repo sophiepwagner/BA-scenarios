@@ -278,6 +278,7 @@
       hb: !!heartbeat,
     };
     if (st.id === "pre") msg.code = session.code; // nur auf der ersten Seite nach dem Start
+    if (st.screen === "s-qa") msg.qi = session.qi || 0; // welche Einstiegsfrage gerade dran ist (0 = erste); der Controller kennt die Fragen selbst
     var body = JSON.stringify(msg);
     try {
       fetch(STATUS_URL + STATUS_TOPIC, { method: "POST", body: body, keepalive: true }).catch(function () {});
@@ -467,6 +468,7 @@
       session.qi = (session.qi || 0) + 1;
       lsSet(kState(session.sid), session);
       showQuestion("frage_gestellt");
+      publishStatus(false);
       return;
     }
     // Letzte Frage beantwortet: kurz ruhig bleiben, dann erscheint die Situation
