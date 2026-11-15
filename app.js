@@ -266,7 +266,7 @@
 
   // ---------- Live-Status (nur Anzeige) ----------
   // Feuer-und-vergessen: Fehler (kein Netz, Dienst down) werden verschluckt und beeinflussen den Ablauf nie.
-  function publishStatus(heartbeat) {
+  function publishStatus(heartbeat, submitted) {
     if (!STATUS_TOPIC || admin || !session || session.index < 1) return;
     var st = cur();
     var msg = {
@@ -279,6 +279,7 @@
     };
     if (st.id === "pre") msg.code = session.code; // nur auf der ersten Seite nach dem Start
     if (st.screen === "s-qa") msg.qi = session.qaFor === session.index ? session.qi || 0 : 0; // Nummer der aktuellen Einstiegsfrage (0 = erste). Gilt erst nach enterQa, sonst steht noch der Wert des vorigen Gesprächs drin.
+    if (submitted) msg.sub = true; // Fragebogen dieses Schritts wurde abgeschickt (nur das Ereignis, keine Antworten)
     var body = JSON.stringify(msg);
     try {
       fetch(STATUS_URL + STATUS_TOPIC, { method: "POST", body: body, keepalive: true }).catch(function () {});
@@ -664,6 +665,7 @@
     if (submittedFor === session.index) return; // nur einmal pro Zustand
     submittedFor = session.index;
     logEntry("form_abgesendet");
+    publishStatus(false, true);
     // Kein automatisches Weiterspringen: die letzte Seite des Fragebogens bleibt sichtbar, Weiter erscheint erst jetzt
     $(st.screen).querySelector(".fallback").hidden = false;
   });

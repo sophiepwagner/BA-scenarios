@@ -30,7 +30,7 @@ Eine kleine statische Website (reines HTML, CSS und JavaScript, **kein Build, ke
 | 1 | **Willkommen** | Gibt ihren persönlichen Code ein (5 Zeichen). | „Weiter“, dann Bestätigung („Stimmt dein Code?“) |
 | 2 | **Fragebogen „Vorher“** (Tally) | Füllt den Fragebogen aus. | „Weiter“ nach dem Absenden |
 | 3 | **STOPP-Seite** | Wartet, sagt der Gesprächspartnerin Bescheid, dass sie bereit ist. Danach geht die Kamera automatisch an. | „Ich bin bereit“ |
-| 4 | **Einstiegsfragen** (`qa1`/`qa2`, Kennenlernfragen) | Die 2 bis 3 Fragen stehen als Text auf dem Bildschirm, ohne Ton. Die Vp beantwortet sie der Gesprächspartnerin. Nach der letzten erscheint nach ca. 1,5 s die Situation. Einstellungen in `config.js`. | „Nächste Frage“ / „Weiter“ |
+| 4 | **Einstiegsfragen** (`qa1`/`qa2`, Kennenlernfragen) | Die 2 bis 3 Fragen stehen als Text auf dem Bildschirm, ohne Ton. Vp und Gesprächspartnerin beantworten sie beide nacheinander, um Nähe herzustellen. Nach der letzten erscheint nach ca. 1,5 s die Situation. Einstellungen in `config.js`. | „Nächste Frage“ / „Weiter“ |
 | 4b | **Situation und Gegenstände** | Liest Situation, Aufgabe und ihre 4 Gegenstände. | „Weiter“ |
 | 5 | **Gespräch läuft** (dunkel, kein Timer) | Führt das Gespräch, schaut nicht aufs Tablet. | „Gespräch beendet – weiter zum Fragebogen“ tippen |
 | 6 | **Fragebogen zum Gespräch** (Tally, `gespraech=1`) | Füllt den Fragebogen aus. | „Weiter“ nach dem Absenden |
