@@ -323,7 +323,7 @@
     renderSteps(st);
     window.scrollTo(0, 0);
     if (st.screen === "s-sit") {
-      $("sit-eyebrow").textContent = "Gespräch " + st.g;
+      $("sit-eyebrow").textContent = "Jetzt zur Aufgabe · Gespräch " + st.g;
       fillScenario(st.g);
     }
     if (st.screen === "s-qa") enterQa();

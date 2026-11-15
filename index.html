@@ -64,6 +64,7 @@
       <!-- 3./7. Situation und Gegenstände der Vp (eigene Seite vor jedem Gespräch, Texte per JS eingesetzt) -->
       <section id="s-sit" class="screen sit" hidden>
         <p class="eyebrow" id="sit-eyebrow"></p>
+        <p class="lead">Danke, jetzt geht es zu eurer Aufgabe. Lies die Situation in Ruhe durch.</p>
         <h1 id="sc-title"></h1>
         <p id="sc-intro" class="lead"></p>
         <div class="task"><p id="sc-task"></p></div>
@@ -85,14 +86,15 @@
         <ol class="pause-list">
           <li>Sag deiner Gesprächspartnerin kurz Bescheid, dass du bereit bist.</li>
           <li>Das <span id="pause-nr">erste</span> Gespräch beginnt, sobald deine Gesprächspartnerin dir Bescheid gibt.</li>
-          <li>Tippe erst auf „Ich bin bereit“, wenn es losgeht. Danach siehst du ein paar kurze Fragen, die du deiner Gesprächspartnerin beantwortest.</li>
+          <li>Tippe erst auf „Ich bin bereit“, wenn es losgeht. Danach siehst du ein paar kurze Einstiegsfragen, die du deiner Gesprächspartnerin beantwortest. Anschließend bekommt ihr eure Aufgabe.</li>
         </ol>
         <button type="button" id="btn-begin" class="primary">Ich bin bereit</button>
       </section>
 
-      <!-- 4b./8b. Einstiegsfragen (Kennenlernfragen): Fragetext steht auf dem Bildschirm (config.js: show_text). Ton nur bei audio_mode tts/mp3. -->
+      <!-- 4b./8b. Einstiegsfragen: Fragetext steht auf dem Bildschirm (config.js: show_text). Ton nur bei audio_mode tts/mp3. -->
       <section id="s-qa" class="screen qa" hidden>
         <div class="qa-main">
+          <p class="qa-intro">Zum Einstieg: Beantworte diese Fragen deiner Gesprächspartnerin.</p>
           <p id="qa-count" class="qa-count"></p>
           <div id="qa-icon" class="qa-icon" aria-hidden="true"><span></span><span></span><span></span></div>
           <div id="qa-text-wrap"></div>

@@ -18,7 +18,7 @@ Eine kleine statische Website (reines HTML, CSS und JavaScript, **kein Build, ke
 
 - **Wer bedient was:** Die Vp tippt sich allein durch die Seite. Die Versuchsleiterin öffnet die Seite, gibt das Tablet weiter und greift nur im Notfall ein (Admin-Modus).
 - **Bedingung und Reihenfolge kennt die Seite nicht.** Welche Bedingung (Teleprompter oder Webcam) in welchem Gespräch läuft, steuert der separate Experiment-Controller (Repo `bachelorarbeit`, Ordner `Camera Controller`, siehe dessen README). Die Zuordnung `code → Reihenfolge` wird erst bei der Auswertung ergänzt. Die Versuchsleiterin weiß dadurch während der Sitzung nicht, welche Bedingung läuft, und im Log steht sie auch nicht.
-- **Keine Verbindung zum Controller.** Die Seite und der Controller kennen sich nicht. Den Zeitpunkt, wann die Kamera an- und ausgeht, bestimmt die Versuchsleiterin per Hotkey (F9/F10) im Controller. Zu Beginn jedes Gesprächs zeigt die Seite der Vp 2 bis 3 Einstiegsfragen an (siehe „Einstiegsfragen“ unten). Jedes Tablet läuft für sich.
+- **Nur eine einseitige Verbindung zum Controller.** Die Seite meldet ihren Schritt über ntfy, der Controller schaltet daraufhin die Kamera automatisch (an bei „Ich bin bereit“, schwarz bei „Gespräch beendet“). Notfall-Hotkeys im Controller: Y / X. Zu Beginn jedes Gesprächs zeigt die Seite der Vp 2 bis 3 Einstiegsfragen an (siehe „Einstiegsfragen“ unten). Jedes Tablet läuft für sich.
 - **VP-ID:** Der Controller liest den persönlichen Code der Vp aus der Tally-Einreichung des Fragebogens „Vorher“ (Hidden Field `code`). Das Feld muss in diesem Formular deshalb vorhanden sein.
 - **Kein Tracking.** Die einzige externe Abhängigkeit ist Tally (`tally.so`) für die Fragebögen.
 - **Sprache:** Deutsch, Ansprache „du“, die Gesprächspartnerin heißt „Gesprächspartnerin“.
@@ -29,7 +29,7 @@ Eine kleine statische Website (reines HTML, CSS und JavaScript, **kein Build, ke
 |---|---|---|---|
 | 1 | **Willkommen** | Gibt ihren persönlichen Code ein (5 Zeichen). | „Weiter“, dann Bestätigung („Stimmt dein Code?“) |
 | 2 | **Fragebogen „Vorher“** (Tally) | Füllt den Fragebogen aus. | „Weiter“ nach dem Absenden |
-| 3 | **STOPP-Seite** | Wartet, sagt der Gesprächspartnerin Bescheid, dass sie bereit ist. Versuchsleiterin schaltet danach die Kamera an (F9). | „Ich bin bereit“ |
+| 3 | **STOPP-Seite** | Wartet, sagt der Gesprächspartnerin Bescheid, dass sie bereit ist. Danach geht die Kamera automatisch an. | „Ich bin bereit“ |
 | 4 | **Einstiegsfragen** (`qa1`/`qa2`, Kennenlernfragen) | Die 2 bis 3 Fragen stehen als Text auf dem Bildschirm, ohne Ton. Die Vp beantwortet sie der Gesprächspartnerin. Nach der letzten erscheint nach ca. 1,5 s die Situation. Einstellungen in `config.js`. | „Nächste Frage“ / „Weiter“ |
 | 4b | **Situation und Gegenstände** | Liest Situation, Aufgabe und ihre 4 Gegenstände. | „Weiter“ |
 | 5 | **Gespräch läuft** (dunkel, kein Timer) | Führt das Gespräch, schaut nicht aufs Tablet. | „Gespräch beendet – weiter zum Fragebogen“ tippen |
@@ -144,7 +144,7 @@ Aktivieren mit `?admin=1` hinter der Adresse oder mit `Strg+Alt+L` (nur mit Tast
 
 - **Springen** zu jeder Seite legt ohne laufende Sitzung eine Testsitzung mit dem Code `test0` an. Jeder Sprung steht im Log als `sprung_admin`.
 - **Zurücksetzen** löscht Fortschritt und Log der aktuellen Sitzung (mit Rückfrage). Vorher das Log herunterladen.
-- Die Tablet-Seite der Vp und dein Admin-Fenster sind **nicht verbunden**. Es gibt keine Fernsteuerung.
+- Die Tablet-Seite der Vp und dein Admin-Fenster sind **nicht verbunden**. Es gibt keine Fernsteuerung. Nur der Controller reagiert auf die Schrittmeldungen der Vp-Seite.
 
 ## Daten und Log
 
