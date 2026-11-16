@@ -678,17 +678,30 @@
     logEntry("sitzung_gestartet", 0);
     go(1);
   }
-  $("in-code").addEventListener("input", function () {
-    // Buchstaben (auch Umlaute) und Ziffern; immer in der zusammengesetzten Form (ö als ein Zeichen), damit Tablet und Controller dasselbe sehen
-    this.value = this.value.normalize("NFC").toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+  // Der Code entsteht aus vier Angaben: Ort (Buchstabe) + Jahr (Ziffer) + Monat (2 Ziffern) + Mutter (Buchstabe), z. B. b103a.
+  // Immer in der zusammengesetzten Form (ö als ein Zeichen), damit Tablet und Controller dasselbe sehen.
+  function cleanPart(v, re) {
+    return v.normalize("NFC").toLowerCase().replace(re, "");
+  }
+  ["in-ort", "in-mutter"].forEach(function (id) {
+    $(id).addEventListener("input", function () {
+      this.value = cleanPart(this.value, /[^\p{L}]/gu);
+    });
+  });
+  $("in-jahr").addEventListener("input", function () {
+    this.value = cleanPart(this.value, /[^0-9]/g);
   });
   $("start-form").addEventListener("submit", function (e) {
     e.preventDefault();
-    var code = $("in-code").value.trim().normalize("NFC").toLowerCase();
+    var code =
+      cleanPart($("in-ort").value, /[^\p{L}]/gu) +
+      cleanPart($("in-jahr").value, /[^0-9]/g) +
+      $("in-monat").value +
+      cleanPart($("in-mutter").value, /[^\p{L}]/gu);
     var err = $("start-error");
     err.hidden = true;
-    if (!validCode(code)) {
-      err.textContent = "Der Code muss aus genau 5 Zeichen bestehen (Buchstaben und Ziffern).";
+    if (!/^\p{L}[0-9][0-9]{2}\p{L}$/u.test(code)) {
+      err.textContent = "Bitte fülle alle vier Angaben aus (je ein Buchstabe, eine Ziffer, ein Monat, ein Buchstabe).";
       err.hidden = false;
       return;
     }
@@ -725,7 +738,7 @@
     pendingCode = null;
     $("s-confirm").hidden = true;
     $("s-start").hidden = false;
-    $("in-code").focus();
+    $("in-ort").focus();
   });
   $("btn-confirm-yes").addEventListener("click", function () {
     var code = pendingCode;

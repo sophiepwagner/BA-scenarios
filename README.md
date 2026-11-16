@@ -27,7 +27,7 @@ Eine kleine statische Website (reines HTML, CSS und JavaScript, **kein Build, ke
 
 | # | Seite | Was die Vp sieht und tut | Weiter geht es |
 |---|---|---|---|
-| 1 | **Willkommen** | Gibt ihren persönlichen Code ein (5 Zeichen). | „Weiter“, dann Bestätigung („Stimmt dein Code?“) |
+| 1 | **Willkommen** | Bildet ihren Code aus vier Angaben: Buchstabe Geburtsort, letzte Ziffer Geburtsjahr, Geburtsmonat (Auswahl, 2 Ziffern), Buchstabe Vorname der Mutter (z. B. `b103a`). Die Seite setzt den Code selbst zusammen, es braucht keinen Zettel. | „Weiter“, dann Bestätigung („Stimmt dein Code?“) |
 | 2 | **Fragebogen „Vorher“** (Tally) | Füllt den Fragebogen aus. | „Weiter“ nach dem Absenden |
 | 3 | **STOPP-Seite** | Wartet, sagt der Gesprächspartnerin Bescheid, dass sie bereit ist. Danach geht die Kamera automatisch an. | „Ich bin bereit“ |
 | 4 | **Einstiegsfragen** (`qa1`/`qa2`, Kennenlernfragen) | Die 2 bis 3 Fragen stehen als Text auf dem Bildschirm, ohne Ton. Vp und Gesprächspartnerin beantworten sie beide nacheinander, um Nähe herzustellen. Nach der letzten erscheint nach ca. 1,5 s die Situation. Einstellungen in `config.js`. | „Nächste Frage“ / „Weiter“ |
@@ -119,7 +119,7 @@ Zum Durchklicken ohne Fragebögen: Admin-Modus (`http://localhost:8000/?admin=1`
 
 **Vorher**
 1. Seite ohne `?admin=1` öffnen. Es erscheint „Willkommen“.
-2. Das Tablet der Vp geben. Diese gibt ihren persönlichen Code selbst ein, bestätigt ihn und startet damit die Sitzung.
+2. Das Tablet der Vp geben. Diese beantwortet die vier Fragen zum persönlichen Code, bestätigt den daraus gebildeten Code und startet damit die Sitzung.
 
 **Während der Sitzung**
 - Die Vp bedient das Tablet allein. Neuladen ist unkritisch: Die Seite macht an derselben Stelle weiter, der Browser warnt vorher.

@@ -201,13 +201,27 @@ const visible = (d, id) => !d.getElementById(id).hidden;
   assert(!p.d.getElementById("qa-banner").hidden && /deutsche Stimme/.test(p.d.getElementById("qa-banner").textContent));
   p.w.close();
 
-  // Code mit Umlaut wird nicht verworfen (Großbuchstaben werden klein, Sonderzeichen entfernt)
+  // Code-Bildung aus vier Angaben (Umlaut im Geburtsort bleibt erhalten, Großbuchstaben werden klein)
   p = boot({});
   await wait(30);
-  const inp = p.d.getElementById("in-code");
-  inp.value = "ÖB7x-";
-  inp.dispatchEvent(new p.w.Event("input"));
-  assert.strictEqual(inp.value, "öb7x", "Umlaut bleibt erhalten");
+  const ev = (n) => new p.w.Event(n, { bubbles: true });
+  const ort = p.d.getElementById("in-ort");
+  ort.value = "Ö";
+  ort.dispatchEvent(ev("input"));
+  assert.strictEqual(ort.value, "ö", "Umlaut bleibt erhalten");
+  p.d.getElementById("in-jahr").value = "1";
+  p.d.getElementById("in-monat").value = "03";
+  p.d.getElementById("in-mutter").value = "A";
+  p.d.getElementById("in-mutter").dispatchEvent(ev("input"));
+  p.d.getElementById("start-form").dispatchEvent(new p.w.Event("submit", { cancelable: true }));
+  assert.strictEqual(p.d.getElementById("confirm-code").textContent, "ö103a", "Code aus vier Teilen");
+  p.w.close();
+
+  // Unvollständige Angaben: Fehlermeldung, keine Bestätigungsseite
+  p = boot({});
+  await wait(30);
+  p.d.getElementById("start-form").dispatchEvent(new p.w.Event("submit", { cancelable: true }));
+  assert(!p.d.getElementById("start-error").hidden && p.d.getElementById("s-confirm").hidden);
   p.w.close();
 
   console.log("page.test.js: ok");
