@@ -20,7 +20,7 @@ function boot(opts) {
   let html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
   html = html.replace(/<script src="([^"]+)"><\/script>/g, (m, src) => {
     let code = fs.readFileSync(path.join(ROOT, src), "utf8");
-    if (src === "config.js") code += "\nObject.assign(window.CONFIG," + JSON.stringify(Object.assign({ n_questions: 3, audio_mode: "tts", show_text: false }, opts.config)) + ");";
+    if (src === "config.js") code += "\nObject.assign(window.CONFIG," + JSON.stringify(Object.assign({ n_questions: 2, audio_mode: "tts", show_text: false }, opts.config)) + ");";
     return "<script>" + code.replace(/<\/script>/g, "<\\/script>") + "</script>";
   });
   const spoken = [];
@@ -87,7 +87,7 @@ const log = (w) => JSON.parse(w.localStorage.getItem("studie:s1:log")).map((e) =
 const visible = (d, id) => !d.getElementById(id).hidden;
 
 (async () => {
-  const exp = Q.forBlock(CODE, seed, list, 1, 3);
+  const exp = Q.forBlock(CODE, seed, list, 1, 2);
 
   // 1. Richtige Fragen in Reihenfolge, Zähler, kein Fragetext im DOM
   let p = boot({ ls: lsFor(IDX.pause1), config: { talk_delay_ms: 20 } });
@@ -95,7 +95,7 @@ const visible = (d, id) => !d.getElementById(id).hidden;
   p.d.getElementById("btn-begin").click();
   await wait(30);
   assert(visible(p.d, "s-qa"));
-  assert.strictEqual(p.d.getElementById("qa-count").textContent, "Frage 1 von 3");
+  assert.strictEqual(p.d.getElementById("qa-count").textContent, "Frage 1 von 2");
   assert.deepStrictEqual(p.spoken, [text[exp[0]]]);
   assert(!p.d.body.textContent.includes(text[exp[0]]), "kein Fragetext im DOM");
   assert(!p.d.documentElement.outerHTML.includes(text[exp[0]]), "kein Fragetext im HTML");
@@ -110,21 +110,19 @@ const visible = (d, id) => !d.getElementById(id).hidden;
   assert(log(p.w).includes("frage_nochmal_2x:" + exp[0]));
   // weiter durch alle Fragen
   p.d.getElementById("btn-qa-next").click();
-  assert.strictEqual(p.d.getElementById("qa-count").textContent, "Frage 2 von 3");
+  assert.strictEqual(p.d.getElementById("qa-count").textContent, "Frage 2 von 2");
   // 10. Reload mitten im Gespräch: gleicher Stand, kein Ton von selbst
   const snap = snapshot(p.w);
   p.w.close();
   const r = boot({ ls: snap, config: { talk_delay_ms: 20 } });
   await wait(30);
   assert(visible(r.d, "s-qa"));
-  assert.strictEqual(r.d.getElementById("qa-count").textContent, "Frage 2 von 3");
+  assert.strictEqual(r.d.getElementById("qa-count").textContent, "Frage 2 von 2");
   assert.deepStrictEqual(r.spoken, [], "nach Reload kein automatischer Ton");
   r.d.getElementById("btn-qa-again").click();
   await wait(5);
   assert.deepStrictEqual(r.spoken, [text[exp[1]]], "dieselbe Frage 2 nach Reload");
-  r.d.getElementById("btn-qa-next").click();
-  assert.strictEqual(r.d.getElementById("qa-count").textContent, "Frage 3 von 3");
-  assert.strictEqual(r.d.getElementById("btn-qa-next").textContent, "Weiter");
+  assert.strictEqual(r.d.getElementById("btn-qa-next").textContent, "Weiter", "letzte von 2");
   // Ende: nach kurzer Pause erscheint die Situation (danach erst das Gespräch)
   r.d.getElementById("btn-qa-next").click();
   assert(!visible(r.d, "s-sit"));
@@ -147,7 +145,7 @@ const visible = (d, id) => !d.getElementById(id).hidden;
   p.w.close();
 
   // Block 2 nutzt andere Fragen als Block 1
-  const b2 = Q.forBlock(CODE, seed, list, 2, 3);
+  const b2 = Q.forBlock(CODE, seed, list, 2, 2);
   assert(b2.every((i) => exp.indexOf(i) < 0));
   p = boot({ ls: lsFor(IDX.pause2), config: {} });
   await wait(30);

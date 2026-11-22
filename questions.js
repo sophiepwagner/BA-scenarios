@@ -39,7 +39,7 @@
     return t;
   }
 
-  // Liefert { block1: [id Stufe 1, id Stufe 2, id Stufe 3], block2: [...] }
+  // Liefert { block1: [id Stufe 1, id Stufe 2], block2: [...] }
   function draw(code, seed, list) {
     var tiers = byTier(list);
     var out = { block1: [], block2: [] };
@@ -63,7 +63,7 @@
     return out;
   }
 
-  // Die ersten n Fragen eines Blocks (n = 2: Stufe 1 und 2; n = 3: zusätzlich Stufe 3)
+  // Die ersten n Fragen eines Blocks (n = 2: Stufe 1 und 2)
   function forBlock(code, seed, list, block, n) {
     return draw(code, seed, list)["block" + block].slice(0, n);
   }

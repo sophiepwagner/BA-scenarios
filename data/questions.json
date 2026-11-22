@@ -30,6 +30,126 @@
     "text": "Welches Buch, Spiel oder welche Serie hat dich zuletzt richtig gepackt?"
   },
   {
+    "id": "S1-7",
+    "tier": 1,
+    "text": "Welche berühmte Person würdest du gern einmal treffen, und warum?"
+  },
+  {
+    "id": "S1-8",
+    "tier": 1,
+    "text": "Welche Jahreszeit magst du am liebsten, und was machst du dann gern?"
+  },
+  {
+    "id": "S1-9",
+    "tier": 1,
+    "text": "Welches Lied hörst du gerade am häufigsten?"
+  },
+  {
+    "id": "S1-10",
+    "tier": 1,
+    "text": "Welchen Lieblingsort in der Stadt, in der du jetzt lebst, zeigst du Besuch als Erstes?"
+  },
+  {
+    "id": "S1-11",
+    "tier": 1,
+    "text": "Wenn du einen Tag lang einen ganz anderen Beruf ausprobieren dürftest, welcher wäre es?"
+  },
+  {
+    "id": "S1-12",
+    "tier": 1,
+    "text": "Welches Tier wärst du gern für einen Tag, und warum?"
+  },
+  {
+    "id": "S1-13",
+    "tier": 1,
+    "text": "Welcher Geruch erinnert dich an etwas Schönes?"
+  },
+  {
+    "id": "S1-14",
+    "tier": 1,
+    "text": "Was würdest du kochen, wenn Freunde zum Essen kommen?"
+  },
+  {
+    "id": "S1-15",
+    "tier": 1,
+    "text": "Welche Sprache würdest du gern fließend sprechen?"
+  },
+  {
+    "id": "S1-16",
+    "tier": 1,
+    "text": "Wie sieht dein liebstes Frühstück aus?"
+  },
+  {
+    "id": "S1-17",
+    "tier": 1,
+    "text": "Welchen Film kannst du immer wieder anschauen?"
+  },
+  {
+    "id": "S1-18",
+    "tier": 1,
+    "text": "Auf welche Erfindung möchtest du im Alltag nicht verzichten?"
+  },
+  {
+    "id": "S1-19",
+    "tier": 1,
+    "text": "Welches Hobby würdest du anfangen, wenn du mehr Zeit hättest?"
+  },
+  {
+    "id": "S1-20",
+    "tier": 1,
+    "text": "In welcher Stadt würdest du gern ein Jahr lang leben?"
+  },
+  {
+    "id": "S1-21",
+    "tier": 1,
+    "text": "Welches Spiel spielst du am liebsten, ob Brettspiel, Kartenspiel oder Videospiel?"
+  },
+  {
+    "id": "S1-22",
+    "tier": 1,
+    "text": "Was machst du gern, wenn das Wetter richtig schlecht ist?"
+  },
+  {
+    "id": "S1-23",
+    "tier": 1,
+    "text": "Welche Superkraft wäre im Alltag am nützlichsten?"
+  },
+  {
+    "id": "S1-24",
+    "tier": 1,
+    "text": "Was gehört für dich zu einem gelungenen Abend mit Freunden?"
+  },
+  {
+    "id": "S1-25",
+    "tier": 1,
+    "text": "Welches Getränk darf in deinem Alltag nicht fehlen?"
+  },
+  {
+    "id": "S1-26",
+    "tier": 1,
+    "text": "Welche Musik hörst du am liebsten auf einer langen Zugfahrt?"
+  },
+  {
+    "id": "S1-27",
+    "tier": 1,
+    "text": "Welche Veranstaltung, etwa ein Konzert, eine Ausstellung oder ein Spiel, hat dir zuletzt richtig gut gefallen?"
+  },
+  {
+    "id": "S1-28",
+    "tier": 1,
+    "text": "Welchen Beruf fandest du als Kind spannend?"
+  },
+  {
+    "id": "S1-29",
+    "tier": 1,
+    "text": "Wie würde dein Traum-Café aussehen?"
+  },
+  {
+    "id": "S1-30",
+    "tier": 1,
+    "text": "Welches Verkehrsmittel nutzt du am liebsten, und warum?"
+  },
+  {
     "id": "S2-1",
     "tier": 2,
     "text": "Was machst du, um nach einem anstrengenden Tag abzuschalten?"
@@ -60,33 +180,123 @@
     "text": "Was würdest du ein Jahr lang tun, wenn Geld und Zeit keine Rolle spielten?"
   },
   {
-    "id": "S3-1",
-    "tier": 3,
-    "text": "Wann warst du zuletzt richtig stolz auf dich?"
+    "id": "S2-7",
+    "tier": 2,
+    "text": "Worauf freust du dich in den nächsten Wochen?"
   },
   {
-    "id": "S3-2",
-    "tier": 3,
-    "text": "Was würdest du gern einmal ausprobieren, hast dich aber bisher nicht getraut?"
+    "id": "S2-8",
+    "tier": 2,
+    "text": "Welche Gewohnheit tut dir im Alltag richtig gut?"
   },
   {
-    "id": "S3-3",
-    "tier": 3,
-    "text": "Was schätzt du an deinen engsten Freundschaften am meisten?"
+    "id": "S2-9",
+    "tier": 2,
+    "text": "Welches Erlebnis aus den letzten Wochen erzählst du gern weiter?"
   },
   {
-    "id": "S3-4",
-    "tier": 3,
-    "text": "Wann hast du zuletzt so richtig gelacht, und worüber?"
+    "id": "S2-10",
+    "tier": 2,
+    "text": "Wofür bewunderst du andere Menschen?"
   },
   {
-    "id": "S3-5",
-    "tier": 3,
-    "text": "Welche Entscheidung hat dein Leben in eine neue Richtung gelenkt?"
+    "id": "S2-11",
+    "tier": 2,
+    "text": "Was gibt dir Energie, wenn du müde bist?"
   },
   {
-    "id": "S3-6",
-    "tier": 3,
-    "text": "Wie stellst du dir ein gutes Leben in zehn Jahren vor?"
+    "id": "S2-12",
+    "tier": 2,
+    "text": "Wer bringt dich am meisten zum Lachen, und warum?"
+  },
+  {
+    "id": "S2-13",
+    "tier": 2,
+    "text": "An welche Reise oder an welchen Ausflug denkst du gern zurück?"
+  },
+  {
+    "id": "S2-14",
+    "tier": 2,
+    "text": "Was würdest du deinem 15-jährigen Ich raten?"
+  },
+  {
+    "id": "S2-15",
+    "tier": 2,
+    "text": "Welche Aufgabe im Alltag erledigst du überraschend gern?"
+  },
+  {
+    "id": "S2-16",
+    "tier": 2,
+    "text": "Was war der beste Rat, den du je bekommen hast?"
+  },
+  {
+    "id": "S2-17",
+    "tier": 2,
+    "text": "Welche Tradition oder welches Ritual ist dir wichtig?"
+  },
+  {
+    "id": "S2-18",
+    "tier": 2,
+    "text": "Was war dein Lieblingsfach in der Schule, und warum?"
+  },
+  {
+    "id": "S2-19",
+    "tier": 2,
+    "text": "Was machst du gern gemeinsam mit anderen, aber nicht allein?"
+  },
+  {
+    "id": "S2-20",
+    "tier": 2,
+    "text": "Wohin gehst du, wenn du Ruhe brauchst?"
+  },
+  {
+    "id": "S2-21",
+    "tier": 2,
+    "text": "Was hat dich zuletzt zum Nachdenken gebracht?"
+  },
+  {
+    "id": "S2-22",
+    "tier": 2,
+    "text": "Was würdest du jemandem raten, der neu dorthin zieht, wo du wohnst?"
+  },
+  {
+    "id": "S2-23",
+    "tier": 2,
+    "text": "Worin bist du richtig gut?"
+  },
+  {
+    "id": "S2-24",
+    "tier": 2,
+    "text": "Was hast du zuletzt zum ersten Mal gemacht?"
+  },
+  {
+    "id": "S2-25",
+    "tier": 2,
+    "text": "Wie triffst du Entscheidungen, eher aus dem Bauch oder nach langem Abwägen?"
+  },
+  {
+    "id": "S2-26",
+    "tier": 2,
+    "text": "Was lernst du gerade, das dich fordert?"
+  },
+  {
+    "id": "S2-27",
+    "tier": 2,
+    "text": "Worüber kannst du stundenlang reden?"
+  },
+  {
+    "id": "S2-28",
+    "tier": 2,
+    "text": "Welches Spiel oder Spielzeug aus deiner Kindheit mochtest du am liebsten?"
+  },
+  {
+    "id": "S2-29",
+    "tier": 2,
+    "text": "Was würdest du an deinem Alltag gern ändern, wenn du könntest?"
+  },
+  {
+    "id": "S2-30",
+    "tier": 2,
+    "text": "Welche Begegnung mit einem Fremden ist dir positiv in Erinnerung geblieben?"
   }
 ]

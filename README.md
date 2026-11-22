@@ -18,7 +18,7 @@ Eine kleine statische Website (reines HTML, CSS und JavaScript, **kein Build, ke
 
 - **Wer bedient was:** Die Vp tippt sich allein durch die Seite. Die Versuchsleiterin öffnet die Seite, gibt das Tablet weiter und greift nur im Notfall ein (Admin-Modus).
 - **Bedingung und Reihenfolge kennt die Seite nicht.** Welche Bedingung (Teleprompter oder Webcam) in welchem Gespräch läuft, steuert der separate Experiment-Controller (Repo `bachelorarbeit`, Ordner `Camera Controller`, siehe dessen README). Die Zuordnung `code → Reihenfolge` wird erst bei der Auswertung ergänzt. Die Versuchsleiterin weiß dadurch während der Sitzung nicht, welche Bedingung läuft, und im Log steht sie auch nicht.
-- **Nur eine einseitige Verbindung zum Controller.** Die Seite meldet ihren Schritt über ntfy, der Controller schaltet daraufhin die Kamera automatisch (an bei „Ich bin bereit“, schwarz bei „Gespräch beendet“). Notfall-Hotkeys im Controller: Y / X. Zu Beginn jedes Gesprächs zeigt die Seite der Vp 2 bis 3 Einstiegsfragen an (siehe „Einstiegsfragen“ unten). Jedes Tablet läuft für sich.
+- **Nur eine einseitige Verbindung zum Controller.** Die Seite meldet ihren Schritt über ntfy, der Controller schaltet daraufhin die Kamera automatisch (an bei „Ich bin bereit“, schwarz bei „Gespräch beendet“). Notfall-Hotkeys im Controller: Y / X. Zu Beginn jedes Gesprächs zeigt die Seite der Vp 2 Einstiegsfragen an (siehe „Einstiegsfragen“ unten). Jedes Tablet läuft für sich.
 - **VP-ID:** Der Controller liest den persönlichen Code der Vp aus der Tally-Einreichung des Fragebogens „Vorher“ (Hidden Field `code`). Das Feld muss in diesem Formular deshalb vorhanden sein.
 - **Kein Tracking.** Die einzige externe Abhängigkeit ist Tally (`tally.so`) für die Fragebögen.
 - **Sprache:** Deutsch, Ansprache „du“, die Gesprächspartnerin heißt „Gesprächspartnerin“.
@@ -30,7 +30,7 @@ Eine kleine statische Website (reines HTML, CSS und JavaScript, **kein Build, ke
 | 1 | **Willkommen** | Bildet ihren Code aus vier Angaben: Buchstabe Geburtsort, letzte Ziffer Geburtsjahr, Geburtsmonat (Auswahl, 2 Ziffern), Buchstabe Vorname der Mutter (z. B. `b103a`). Die Seite setzt den Code selbst zusammen, es braucht keinen Zettel. | „Weiter“, dann Bestätigung („Stimmt dein Code?“) |
 | 2 | **Fragebogen „Vorher“** (Tally) | Füllt den Fragebogen aus. | „Weiter“ nach dem Absenden |
 | 3 | **STOPP-Seite** | Wartet, sagt der Gesprächspartnerin Bescheid, dass sie bereit ist. Danach geht die Kamera automatisch an. | „Ich bin bereit“ |
-| 4 | **Einstiegsfragen** (`qa1`/`qa2`, Kennenlernfragen) | Die 2 bis 3 Fragen stehen als Text auf dem Bildschirm, ohne Ton. Vp und Gesprächspartnerin beantworten sie beide nacheinander, um Nähe herzustellen. Nach der letzten erscheint nach ca. 1,5 s die Situation. Einstellungen in `config.js`. | „Nächste Frage“ / „Weiter“ |
+| 4 | **Einstiegsfragen** (`qa1`/`qa2`, Kennenlernfragen) | Die 2 Fragen stehen als Text auf dem Bildschirm, ohne Ton. Vp und Gesprächspartnerin beantworten sie beide nacheinander, um Nähe herzustellen. Nach der letzten erscheint nach ca. 1,5 s die Situation. Einstellungen in `config.js`. | „Nächste Frage“ / „Weiter“ |
 | 4b | **Situation und Gegenstände** | Liest Situation, Aufgabe und ihre 4 Gegenstände. | „Weiter“ |
 | 5 | **Gespräch läuft** (dunkel, kein Timer) | Führt das Gespräch, schaut nicht aufs Tablet. | „Gespräch beendet – weiter zum Fragebogen“ tippen |
 | 6 | **Fragebogen zum Gespräch** (Tally, `gespraech=1`) | Füllt den Fragebogen aus. | „Weiter“ nach dem Absenden |
@@ -173,7 +173,7 @@ Zustände: `start`, `pre`, `pause1`, `qa1`, `sit1`, `talk1`, `fb1`, `pause2`, `q
 | Was | Wo |
 |---|---|
 | Formular-IDs | `app.js`, Konstante `TALLY` |
-| Einstiegsfragen (Anzahl 2/3, Audio-Modus, Debug, Pause vor „Gespräch läuft“) | `config.js` |
+| Einstiegsfragen (Audio-Modus, Debug, Pause vor „Gespräch läuft“) | `config.js` |
 | Fragenpool und Ziehungs-Seed | `data/questions.json`, `data/draw.json` |
 | Status für den Controller (Kanal, Heartbeat) | `app.js`, `STATUS_TOPIC`, `STATUS_URL`, `HEARTBEAT_S` |
 | Zeit bis zum Fallback-Knopf (Fragebogen lädt nicht) | `app.js`, `IFRAME_TIMEOUT_MS` |
@@ -211,4 +211,4 @@ archiv-szenarien/ frühere Szenario-Seite, wird nicht verwendet
 
 ## Einstiegsfragen
 
-Zu Beginn jedes Gesprächs werden `n_questions` (2 oder 3) leichte Fragen angezeigt (Standard: nur Text, `audio_mode: "off"`; Sprachausgabe nur mit `"tts"`/`"mp3"`) (Stufe 1, 2, optional 3). Es gibt **keinen Plan**: Die Fragen ergeben sich aus dem selbstgewählten Code der Vp und einem festen Seed (`data/draw.json`) in `questions.js`. Pro Stufe wird gemischt, die erste Frage kommt in Gespräch 1, die zweite in Gespräch 2. Dadurch gibt es pro Person keine Frage doppelt. Ausgewogenheit über alle Personen ist nur näherungsweise gegeben, weil die Codes frei gewählt werden (`python3 tools/simulate_balance.py`). Der Controller rechnet dasselbe in `tools/question_draw.py` aus (`get_questions` in `experiment_controller.py`). **JS und Python müssen identisch bleiben** (Testvektoren in `tests/`). Den Seed nach Beginn der Datenerhebung nicht mehr ändern. Mit `show_text: false` verschwindet der Text (dann nur mit Ton sinnvoll). Test siehe `TESTING.md`.
+Zu Beginn jedes Gesprächs werden 2 leichte Fragen angezeigt (Standard: nur Text, `audio_mode: "off"`; Sprachausgabe nur mit `"tts"`/`"mp3"`) (Stufe 1 und 2, Pool: je 30 Fragen pro Stufe). Es gibt **keinen Plan**: Die Fragen ergeben sich aus dem selbstgewählten Code der Vp und einem festen Seed (`data/draw.json`) in `questions.js`. Pro Stufe wird gemischt, die erste Frage kommt in Gespräch 1, die zweite in Gespräch 2. Dadurch gibt es pro Person keine Frage doppelt. Ausgewogenheit über alle Personen ist nur näherungsweise gegeben, weil die Codes frei gewählt werden (`python3 tools/simulate_balance.py`). Der Controller rechnet dasselbe in `tools/question_draw.py` aus (`get_questions` in `experiment_controller.py`). **JS und Python müssen identisch bleiben** (Testvektoren in `tests/`). Den Seed nach Beginn der Datenerhebung nicht mehr ändern. Mit `show_text: false` verschwindet der Text (dann nur mit Ton sinnvoll). Test siehe `TESTING.md`.

@@ -3,7 +3,7 @@
 Vorher am Rechner: `npm install`, dann `npm test` (JS-Tests) und `python3 -m unittest discover -s tests -v` (Python-Tests und Blinding-Check). Alles muss grün sein.
 
 Es gibt **keine VP-Nummern und keinen Plan**: Die Fragen ergeben sich aus dem 5-stelligen Code, den die Seite aus vier Angaben der Versuchsperson bildet. Zum Üben einen festen Testcode nehmen, z. B. `a102c`. Erwartete Fragen dafür (mit `?debug=1` sichtbar):
-Gespräch 1: S1-5, S2-3. Gespräch 2: S1-3, S2-1. (Mit `n_questions: 3` in `config.js` kommt je eine Frage der Stufe 3 dazu: S3-1 bzw. S3-6.)
+Gespräch 1: S1-28, S2-3. Gespräch 2: S1-16, S2-24.
 
 ## Checkliste
 

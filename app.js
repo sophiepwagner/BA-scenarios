@@ -353,7 +353,7 @@
     return CFG.show_text !== false || debugOn() || Number(CFG.question_display_seconds) > 0;
   }
   function nQuestions() {
-    return CFG.n_questions === 2 ? 2 : 3;
+    return 2;
   }
   function showBanner(msg) {
     var b = $("qa-banner");

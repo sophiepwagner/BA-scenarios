@@ -55,8 +55,8 @@ def draw(code: str, seed: str, pool: list) -> dict:
     return out
 
 
-def get_questions(vp_id: str, block: int, n: int = 3, data_dir: str = DATA_DIR) -> list:
-    """Frage-IDs (aufsteigende Stufe) für diesen Code und Block (1 oder 2); n = 2 oder 3."""
+def get_questions(vp_id: str, block: int, n: int = 2, data_dir: str = DATA_DIR) -> list:
+    """Frage-IDs (aufsteigende Stufe) für diesen Code und Block (1 oder 2); n = 2."""
     if block not in (1, 2):
         raise ValueError("block muss 1 oder 2 sein")
     pool, seed = load_pool(data_dir)
