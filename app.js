@@ -336,7 +336,7 @@
   }
 
   // ---------- Einstiegsfragen (nach "Ich bin bereit", vor dem Gespräch) ----------
-  // Die Fragen werden nur vorgelesen. Auf dem Bildschirm steht "Frage 1 von 3", der Text nur im Debug-Modus.
+  // Die Fragen werden nur vorgelesen. Auf dem Bildschirm stehen "Frage 1 von 2" und, wer zuerst liest und antwortet (Frage 1 Vp, Frage 2 Versuchsleitung).
   // Nach jeder Frage wartet die Seite, bis die Vp (oder die Versuchsleiterin) "Weiter" tippt. Kein Timer.
   var CFG = window.CONFIG || {};
   var QA = { list: null, seed: null, byId: {}, error: null, ready: null };
@@ -416,6 +416,10 @@
     var qi = Math.min(session.qi || 0, ids.length - 1);
     var q = QA.byId[ids[qi]];
     $("qa-count").textContent = "Frage " + (qi + 1) + " von " + ids.length;
+    // Fester Wechsel wie bei Aron et al. (1997): Frage 1 liest und beantwortet die Vp zuerst, Frage 2 die Versuchsleitung
+    $("qa-turn").textContent = qi % 2 === 0
+      ? "Du liest die Frage vor und antwortest zuerst."
+      : "Dein Gegenüber liest die Frage vor und antwortet zuerst.";
     $("btn-qa-next").textContent = qi < ids.length - 1 ? "Nächste Frage" : "Weiter";
     var wrap = $("qa-text-wrap");
     clearTimeout(qaTextTimer);

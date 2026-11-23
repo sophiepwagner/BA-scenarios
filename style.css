@@ -749,6 +749,11 @@ body { padding-bottom: var(--admin-h, 0px); }
 .qa-count {
   font-size: 1.6rem;
   color: var(--dark-ink);
+  margin: 0 0 10px;
+}
+.qa-turn {
+  font-size: 1.15rem;
+  color: var(--dark-ink);
   margin: 0 0 28px;
 }
 .qa-icon {

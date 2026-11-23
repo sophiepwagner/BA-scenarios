@@ -96,6 +96,7 @@ const visible = (d, id) => !d.getElementById(id).hidden;
   await wait(30);
   assert(visible(p.d, "s-qa"));
   assert.strictEqual(p.d.getElementById("qa-count").textContent, "Frage 1 von 2");
+  assert(p.d.getElementById("qa-turn").textContent.startsWith("Du liest"), "Frage 1: Vp zuerst");
   assert.deepStrictEqual(p.spoken, [text[exp[0]]]);
   assert(!p.d.body.textContent.includes(text[exp[0]]), "kein Fragetext im DOM");
   assert(!p.d.documentElement.outerHTML.includes(text[exp[0]]), "kein Fragetext im HTML");
@@ -111,6 +112,7 @@ const visible = (d, id) => !d.getElementById(id).hidden;
   // weiter durch alle Fragen
   p.d.getElementById("btn-qa-next").click();
   assert.strictEqual(p.d.getElementById("qa-count").textContent, "Frage 2 von 2");
+  assert(p.d.getElementById("qa-turn").textContent.startsWith("Dein Gegenüber"), "Frage 2: Versuchsleitung zuerst");
   // 10. Reload mitten im Gespräch: gleicher Stand, kein Ton von selbst
   const snap = snapshot(p.w);
   p.w.close();
