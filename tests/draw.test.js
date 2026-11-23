@@ -6,15 +6,15 @@ const seed = require("../data/draw.json").seed;
 
 // Feste Testvektoren: müssen mit tests/test_question_draw.py übereinstimmen (gleiche Ziehung in JS und Python)
 const VECTORS = {
-  abc12: { block1: ["S1-15", "S2-24"], block2: ["S1-27", "S2-17"] },
-  x9y8z: { block1: ["S1-5", "S2-18"], block2: ["S1-28", "S2-7"] },
-  "00000": { block1: ["S1-8", "S2-11"], block2: ["S1-29", "S2-7"] },
+  abc12: { block1: ["S1-15", "S2-7"], block2: ["S1-27", "S2-13"] },
+  x9y8z: { block1: ["S1-5", "S2-10"], block2: ["S1-28", "S2-8"] },
+  "00000": { block1: ["S1-8", "S2-15"], block2: ["S1-29", "S2-10"] },
 };
 Object.keys(VECTORS).forEach((c) => assert.deepStrictEqual(Q.draw(c, seed, list), VECTORS[c], "Vektor " + c));
 
 const tierOf = {};
 list.forEach((q) => (tierOf[q.id] = q.tier));
-assert.strictEqual(list.length, 60);
+assert.strictEqual(list.length, 53);
 const codes = [];
 for (let i = 0; i < 500; i++) codes.push((i * 7919 + 12345).toString(36).padStart(5, "0").slice(-5));
 codes.forEach((c) => {
@@ -31,6 +31,6 @@ codes.forEach((c) => {
 ["block1", "block2"].forEach((b) => {
   const seen = new Set();
   codes.forEach((c) => Q.draw(c, seed, list)[b].forEach((id) => seen.add(id)));
-  assert.strictEqual(seen.size, 60, "alle Fragen kommen in " + b + " vor");
+  assert.strictEqual(seen.size, 53, "alle Fragen kommen in " + b + " vor");
 });
 console.log("draw.test.js: ok");

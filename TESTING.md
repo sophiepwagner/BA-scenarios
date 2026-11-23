@@ -3,11 +3,11 @@
 Vorher am Rechner: `npm install`, dann `npm test` (JS-Tests) und `python3 -m unittest discover -s tests -v` (Python-Tests und Blinding-Check). Alles muss grün sein.
 
 Es gibt **keine VP-Nummern und keinen Plan**: Die Fragen ergeben sich aus dem 5-stelligen Code, den die Seite aus vier Angaben der Versuchsperson bildet. Zum Üben einen festen Testcode nehmen, z. B. `a102c`. Erwartete Fragen dafür (mit `?debug=1` sichtbar):
-Gespräch 1: S1-28, S2-3. Gespräch 2: S1-16, S2-24.
+Gespräch 1: S1-28, S2-5. Gespräch 2: S1-16, S2-20.
 
 ## Checkliste
 
-1. **Ablauf:** Seite auf GitHub Pages öffnen (`?debug=1` anhängen für die Probe), den Code `a102c` bilden (Ort `a`, Jahr `1`, Monat `02`, Mutter `c`), bis „STOPP“ gehen. Nach „Ich bin bereit“ kommt sofort Frage 1 („Frage 1 von 2“, ruhiges Symbol). Nach der letzten Frage und „Weiter“ erscheint nach ca. 1,5 s „Gespräch läuft“. Kein Countdown mehr.
+1. **Ablauf:** Seite auf GitHub Pages öffnen (`?debug=1` anhängen für die Probe), den Code `a102c` bilden (Ort `a`, Jahr `1`, Monat `02`, Mutter `c`), bis „STOPP“ gehen. Nach „Ich bin bereit“ kommt sofort Frage 1 („Frage 1 von 2“, ruhiges Symbol). Nach der letzten Frage und „Weiter“ erscheint nach ca. 1,5 s die Situation-Seite mit den Gegenständen. Sie bleiben bis „Gespräch beendet – weiter zum Fragebogen“ sichtbar, es gibt keinen dunklen „Gespräch läuft“-Screen mehr.
 2. **Ton erst nach Tippen:** Ton startet nicht vorher, aber bei „Ich bin bereit“. Bei jeder weiteren Frage („Nächste Frage“) zuverlässig? Safari-Tab vorher nicht stumm geschaltet, iPad-Stummschalter/Lautstärke prüfen.
 3. **Stimme:** Deutsche Stimme vorhanden und verständlich? Kommt ein roter Hinweis „Keine deutsche Stimme“, dann am iPad unter Einstellungen > Bedienungshilfen > Gesprochene Inhalte > Stimmen > Deutsch eine Stimme laden. Lautstärke passend?
 4. **Zoom mit Kabine:** Hört die Person in der Kabine die Frage? Echo oder Doppelton, weil das Mikrofon den iPad-Ton aufnimmt? Wenn ja: Lautstärke senken oder Kopfhörer testen.

@@ -190,11 +190,6 @@
     "text": "Welche Gewohnheit tut dir im Alltag richtig gut?"
   },
   {
-    "id": "S2-9",
-    "tier": 2,
-    "text": "Welches Erlebnis aus den letzten Wochen erzählst du gern weiter?"
-  },
-  {
     "id": "S2-10",
     "tier": 2,
     "text": "Wofür bewunderst du andere Menschen?"
@@ -225,11 +220,6 @@
     "text": "Welche Aufgabe im Alltag erledigst du überraschend gern?"
   },
   {
-    "id": "S2-16",
-    "tier": 2,
-    "text": "Was war der beste Rat, den du je bekommen hast?"
-  },
-  {
     "id": "S2-17",
     "tier": 2,
     "text": "Welche Tradition oder welches Ritual ist dir wichtig?"
@@ -240,34 +230,14 @@
     "text": "Was war dein Lieblingsfach in der Schule, und warum?"
   },
   {
-    "id": "S2-19",
-    "tier": 2,
-    "text": "Was machst du gern gemeinsam mit anderen, aber nicht allein?"
-  },
-  {
     "id": "S2-20",
     "tier": 2,
     "text": "Wohin gehst du, wenn du Ruhe brauchst?"
   },
   {
-    "id": "S2-21",
-    "tier": 2,
-    "text": "Was hat dich zuletzt zum Nachdenken gebracht?"
-  },
-  {
     "id": "S2-22",
     "tier": 2,
     "text": "Was würdest du jemandem raten, der neu dorthin zieht, wo du wohnst?"
-  },
-  {
-    "id": "S2-23",
-    "tier": 2,
-    "text": "Worin bist du richtig gut?"
-  },
-  {
-    "id": "S2-24",
-    "tier": 2,
-    "text": "Was hast du zuletzt zum ersten Mal gemacht?"
   },
   {
     "id": "S2-25",
@@ -293,10 +263,5 @@
     "id": "S2-29",
     "tier": 2,
     "text": "Was würdest du an deinem Alltag gern ändern, wenn du könntest?"
-  },
-  {
-    "id": "S2-30",
-    "tier": 2,
-    "text": "Welche Begegnung mit einem Fremden ist dir positiv in Erinnerung geblieben?"
   }
 ]

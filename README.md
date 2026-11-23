@@ -31,15 +31,14 @@ Eine kleine statische Website (reines HTML, CSS und JavaScript, **kein Build, ke
 | 2 | **Fragebogen „Vorher“** (Tally) | Füllt den Fragebogen aus. | „Weiter“ nach dem Absenden |
 | 3 | **STOPP-Seite** | Wartet, sagt der Gesprächspartnerin Bescheid, dass sie bereit ist. Danach geht die Kamera automatisch an. | „Ich bin bereit“ |
 | 4 | **Einstiegsfragen** (`qa1`/`qa2`, Kennenlernfragen) | Die 2 Fragen stehen als Text auf dem Bildschirm, ohne Ton. Vp und Gesprächspartnerin beantworten sie beide nacheinander, um Nähe herzustellen. Nach der letzten erscheint nach ca. 1,5 s die Situation. Einstellungen in `config.js`. | „Nächste Frage“ / „Weiter“ |
-| 4b | **Situation und Gegenstände** | Liest Situation, Aufgabe und ihre 4 Gegenstände. | „Weiter“ |
-| 5 | **Gespräch läuft** (dunkel, kein Timer) | Führt das Gespräch, schaut nicht aufs Tablet. | „Gespräch beendet – weiter zum Fragebogen“ tippen |
+| 5 | **Situation und Gegenstände** (`sit1`/`sit2`, hell, kein Timer) | Liest Situation, Aufgabe und ihre 4 Gegenstände. Die Gegenstände bleiben während des ganzen Gesprächs sichtbar. | „Gespräch beendet – weiter zum Fragebogen“ (erst nach dem Gespräch tippen) |
 | 6 | **Fragebogen zum Gespräch** (Tally, `gespraech=1`) | Füllt den Fragebogen aus. | „Weiter“ nach dem Absenden |
 | 7–10 | dasselbe für **Gespräch 2** (zweites Szenario, `gespraech=2`) | | |
 | 11 | **Geschafft** | Hinweis auf den letzten Fragebogen. | „Weiter“ |
 | 12 | **Abschlussfragebogen** (Tally) | Füllt den Fragebogen aus. | „Weiter“ nach dem Absenden |
 | 13 | **Ende** | „Vielen Dank für deine Teilnahme!“ | – |
 
-- **Ablauf-Leiste oben:** Fünf Segmente (Start, Gespräch 1, Gespräch 2, Rückblick, Fertig) zeigen, wo die Vp gerade ist. Auf der Startseite und im dunklen Gespräch ist sie ausgeblendet.
+- **Ablauf-Leiste oben:** Fünf Segmente (Start, Gespräch 1, Gespräch 2, Rückblick, Fertig) zeigen, wo die Vp gerade ist. Auf der Startseite und bei den dunklen Einstiegsfragen ist sie ausgeblendet.
 - **Notfall-Weiter:** Lädt ein Fragebogen nicht (kein Netz), erscheint ein „Weiter“-Knopf nur im Admin-Modus.
 - **Fragebögen:** Es gibt kein automatisches Weiterspringen. Nach dem Absenden bleibt die letzte Tally-Seite sichtbar, erst dann erscheint unten „Weiter“.
 - **Szenarien:** Gespräch 1 ist „Autopanne in der Wüste“, Gespräch 2 „Eingeschneite Berghütte“. Jede Person hat 4 von 8 Gegenständen, zusammen wählt man 5 aus. Die Gegenstände der Vp stehen auf der Situation-Seite, die der Gesprächspartnerin nur im Admin-Modus.
@@ -164,7 +163,7 @@ Alles liegt im `localStorage` des Tablets (Schlüssel `studie:<sitzung>:state`, 
 | `ts_epoch_ms` | derselbe Zeitpunkt als Unix-Zeit in Millisekunden |
 | `ereignis` | `sitzung_gestartet`, `wechsel`, `form_abgesendet`, `weiter_manuell`, `neu_geladen`, `sprung_admin`, `qa_ende`, `fragen_zugewiesen:<IDs>`, `frage_gestellt:<ID>`, `frage_nochmal_<n>x:<ID>`, `fragen_ende`, `audio_fehler:<ID>` |
 
-Zustände: `start`, `pre`, `pause1`, `qa1`, `sit1`, `talk1`, `fb1`, `pause2`, `qa2`, `sit2`, `talk2`, `fb2`, `done`, `post`, `end`.
+Zustände: `start`, `pre`, `pause1`, `qa1`, `sit1`, `fb1`, `pause2`, `qa2`, `sit2`, `fb2`, `done`, `post`, `end`.
 
 **Reihenfolge und Bedingung** stehen weder im Log noch in den Tally-Daten. Sie werden bei der Auswertung über den Code (bzw. die Sitzungs-ID) ergänzt.
 
@@ -173,7 +172,7 @@ Zustände: `start`, `pre`, `pause1`, `qa1`, `sit1`, `talk1`, `fb1`, `pause2`, `q
 | Was | Wo |
 |---|---|
 | Formular-IDs | `app.js`, Konstante `TALLY` |
-| Einstiegsfragen (Audio-Modus, Debug, Pause vor „Gespräch läuft“) | `config.js` |
+| Einstiegsfragen (Audio-Modus, Debug, Pause vor der Situation-Seite) | `config.js` |
 | Fragenpool und Ziehungs-Seed | `data/questions.json`, `data/draw.json` |
 | Status für den Controller (Kanal, Heartbeat) | `app.js`, `STATUS_TOPIC`, `STATUS_URL`, `HEARTBEAT_S` |
 | Zeit bis zum Fallback-Knopf (Fragebogen lädt nicht) | `app.js`, `IFRAME_TIMEOUT_MS` |
@@ -191,7 +190,7 @@ In `scenarios.js` hat jedes Szenario Gegenstände für die Rollen `a` (Gespräch
 
 ```
 index.html        Seitenaufbau, alle Screens
-style.css         Gestaltung (hell; dunkel nur im Gespräch)
+style.css         Gestaltung (hell; dunkel nur bei den Einstiegsfragen)
 app.js            Ablauf, Tally-Einbettung, Log, Admin-Modus
 scenarios.js      Szenarien und Gegenstände
 icons.js          Bilder der Gegenstände (SVG)
@@ -211,4 +210,4 @@ archiv-szenarien/ frühere Szenario-Seite, wird nicht verwendet
 
 ## Einstiegsfragen
 
-Zu Beginn jedes Gesprächs werden 2 leichte Fragen angezeigt (Standard: nur Text, `audio_mode: "off"`; Sprachausgabe nur mit `"tts"`/`"mp3"`) (Stufe 1 und 2, Pool: je 30 Fragen pro Stufe). Es gibt **keinen Plan**: Die Fragen ergeben sich aus dem selbstgewählten Code der Vp und einem festen Seed (`data/draw.json`) in `questions.js`. Pro Stufe wird gemischt, die erste Frage kommt in Gespräch 1, die zweite in Gespräch 2. Dadurch gibt es pro Person keine Frage doppelt. Ausgewogenheit über alle Personen ist nur näherungsweise gegeben, weil die Codes frei gewählt werden (`python3 tools/simulate_balance.py`). Der Controller rechnet dasselbe in `tools/question_draw.py` aus (`get_questions` in `experiment_controller.py`). **JS und Python müssen identisch bleiben** (Testvektoren in `tests/`). Den Seed nach Beginn der Datenerhebung nicht mehr ändern. Mit `show_text: false` verschwindet der Text (dann nur mit Ton sinnvoll). Test siehe `TESTING.md`.
+Zu Beginn jedes Gesprächs werden 2 leichte Fragen angezeigt (Standard: nur Text, `audio_mode: "off"`; Sprachausgabe nur mit `"tts"`/`"mp3"`) (Stufe 1 und 2, Pool: 30 Fragen in Stufe 1, 23 in Stufe 2). Es gibt **keinen Plan**: Die Fragen ergeben sich aus dem selbstgewählten Code der Vp und einem festen Seed (`data/draw.json`) in `questions.js`. Pro Stufe wird gemischt, die erste Frage kommt in Gespräch 1, die zweite in Gespräch 2. Dadurch gibt es pro Person keine Frage doppelt. Ausgewogenheit über alle Personen ist nur näherungsweise gegeben, weil die Codes frei gewählt werden (`python3 tools/simulate_balance.py`). Der Controller rechnet dasselbe in `tools/question_draw.py` aus (`get_questions` in `experiment_controller.py`). **JS und Python müssen identisch bleiben** (Testvektoren in `tests/`). Den Seed nach Beginn der Datenerhebung nicht mehr ändern. Mit `show_text: false` verschwindet der Text (dann nur mit Ton sinnvoll). Test siehe `TESTING.md`.

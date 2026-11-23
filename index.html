@@ -81,7 +81,7 @@
         <button type="button" class="fallback" hidden>Weiter</button>
       </section>
 
-      <!-- 3./7. Situation und Gegenstände der Vp (eigene Seite vor jedem Gespräch, Texte per JS eingesetzt) -->
+      <!-- Situation und Gegenstände der Vp: bleibt während des ganzen Gesprächs sichtbar, Texte per JS eingesetzt -->
       <section id="s-sit" class="screen sit" hidden>
         <p class="eyebrow" id="sit-eyebrow"></p>
         <p class="lead">Danke, jetzt geht es zu eurer Aufgabe. Lies die Situation in Ruhe durch.</p>
@@ -96,8 +96,8 @@
           <p class="hint">Nur im Admin-Modus sichtbar, nicht für die Versuchsperson.</p>
           <ul id="sc-items-a" class="items big"></ul>
         </div>
-        <p class="hint">Nimm dir Zeit und lies alles in Ruhe durch. Wenn du bereit bist, tippe auf „Weiter“. Danach sind die Gegenstände nicht mehr auf dem Tablet zu sehen.</p>
-        <button type="button" id="btn-sit" class="primary">Weiter</button>
+        <p class="hint">Die Gegenstände bleiben während des ganzen Gesprächs hier sichtbar. Bitte tippe erst, wenn das Gespräch beendet wurde.</p>
+        <button type="button" id="btn-sit" class="primary">Gespräch beendet – weiter zum Fragebogen</button>
       </section>
 
       <!-- 4./8. Pause vor dem Gespräch (für beide Gespräche, Text wird per JS angepasst) -->
@@ -123,15 +123,6 @@
         <div class="qa-bottom">
           <button type="button" id="btn-qa-next" class="primary endbtn">Weiter</button>
           <button type="button" id="btn-qa-again" class="qa-again">Frage nochmal hören</button>
-        </div>
-      </section>
-
-      <!-- 4./7. Gespräch läuft: ruhig, dunkel, kein Timer -->
-      <section id="s-talk" class="screen talk" hidden>
-        <p class="talk-text">Gespräch läuft …</p>
-        <div class="talk-bottom">
-          <button type="button" id="btn-end" class="primary endbtn">Gespräch beendet – weiter zum Fragebogen</button>
-          <p class="talk-hint">Bitte erst tippen, wenn das Gespräch beendet wurde.</p>
         </div>
       </section>
 

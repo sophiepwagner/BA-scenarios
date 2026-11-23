@@ -11,9 +11,9 @@ from question_draw import draw, get_questions, load_pool  # noqa: E402
 
 # Gleiche Vektoren wie in tests/draw.test.js
 VECTORS = {
-    "abc12": {"block1": ["S1-15", "S2-24"], "block2": ["S1-27", "S2-17"]},
-    "x9y8z": {"block1": ["S1-5", "S2-18"], "block2": ["S1-28", "S2-7"]},
-    "00000": {"block1": ["S1-8", "S2-11"], "block2": ["S1-29", "S2-7"]},
+    "abc12": {"block1": ["S1-15", "S2-7"], "block2": ["S1-27", "S2-13"]},
+    "x9y8z": {"block1": ["S1-5", "S2-10"], "block2": ["S1-28", "S2-8"]},
+    "00000": {"block1": ["S1-8", "S2-15"], "block2": ["S1-29", "S2-10"]},
 }
 
 
@@ -34,8 +34,8 @@ class DrawTests(unittest.TestCase):
         self.tier = {q["id"]: q["tier"] for q in self.pool}
 
     def test_pool(self):
-        self.assertEqual(len(self.pool), 60)
-        self.assertEqual(Counter(q["tier"] for q in self.pool), {1: 30, 2: 30})
+        self.assertEqual(len(self.pool), 53)
+        self.assertEqual(Counter(q["tier"] for q in self.pool), {1: 30, 2: 23})
 
     def test_vectors_match_js(self):
         for c, v in VECTORS.items():
@@ -61,7 +61,7 @@ class DrawTests(unittest.TestCase):
         # Codes sind frei gewählt, daher nur grobe Ausgewogenheit je Stufe: keine Frage fehlt, keine dominiert extrem
         for b in ("block1", "block2"):
             c = Counter(i for code in codes(3000) for i in draw(code, self.seed, self.pool)[b])
-            self.assertEqual(len(c), 60)
+            self.assertEqual(len(c), 53)
             for t in (1, 2):
                 ids = [i for i in c if self.tier[i] == t]
                 n = len(ids)

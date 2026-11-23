@@ -34,12 +34,10 @@
     { id: "pause1", screen: "s-pause", g: 1 },
     { id: "qa1", screen: "s-qa", g: 1 },
     { id: "sit1", screen: "s-sit", g: 1 },
-    { id: "talk1", screen: "s-talk", g: 1 },
     { id: "fb1", screen: "s-fb", form: "gespraech", g: 1 },
     { id: "pause2", screen: "s-pause", g: 2 },
     { id: "qa2", screen: "s-qa", g: 2 },
     { id: "sit2", screen: "s-sit", g: 2 },
-    { id: "talk2", screen: "s-talk", g: 2 },
     { id: "fb2", screen: "s-fb", form: "gespraech", g: 2 },
     { id: "done", screen: "s-done" },
     { id: "post", screen: "s-post", form: "abschluss" },
@@ -49,7 +47,7 @@
 
   // Ablauf-Leiste oben: Abschnitte, in die die Zustände gruppiert werden
   var STEPS = ["Start", "Gespräch 1", "Gespräch 2", "Rückblick", "Fertig"];
-  var STEP_OF = { pre: 0, pause1: 1, qa1: 1, sit1: 1, talk1: 1, fb1: 1, pause2: 2, qa2: 2, sit2: 2, talk2: 2, fb2: 2, done: 3, post: 3, end: 4 };
+  var STEP_OF = { pre: 0, pause1: 1, qa1: 1, sit1: 1, fb1: 1, pause2: 2, qa2: 2, sit2: 2, fb2: 2, done: 3, post: 3, end: 4 };
 
   function $(id) {
     return document.getElementById(id);
@@ -314,13 +312,13 @@
   }
 
   // ---------- Anzeige ----------
-  var SCREENS = ["s-start", "s-confirm", "s-pre", "s-fb", "s-post", "s-sit", "s-pause", "s-qa", "s-talk", "s-done", "s-end"];
+  var SCREENS = ["s-start", "s-confirm", "s-pre", "s-fb", "s-post", "s-sit", "s-pause", "s-qa", "s-done", "s-end"];
   function render() {
     var st = cur();
     SCREENS.forEach(function (id) {
       $(id).hidden = id !== st.screen;
     });
-    document.body.classList.toggle("dark", st.id === "talk1" || st.id === "talk2" || st.screen === "s-qa");
+    document.body.classList.toggle("dark", st.screen === "s-qa");
     renderSteps(st);
     window.scrollTo(0, 0);
     if (st.screen === "s-sit") {
@@ -534,11 +532,11 @@
     return li;
   }
 
-  // Leiste: aktueller Abschnitt hervorgehoben, erledigte dezent. Auf der Startseite und im dunklen Gespräch ausgeblendet.
+  // Leiste: aktueller Abschnitt hervorgehoben, erledigte dezent. Auf der Startseite und bei den dunklen Einstiegsfragen ausgeblendet.
   function renderSteps(st) {
     var ol = $("steps");
     var cur = STEP_OF[st.id];
-    ol.hidden = cur === undefined || st.id === "talk1" || st.id === "talk2" || st.screen === "s-qa";
+    ol.hidden = cur === undefined || st.screen === "s-qa";
     if (ol.hidden) return;
     if (!ol.children.length) {
       STEPS.forEach(function (label) {
@@ -752,12 +750,8 @@
     startSession(code);
   });
 
-  // ---------- Gespräch beenden: einfacher Tipp ----------
-  $("btn-end").addEventListener("click", function () {
-    next();
-  });
-
   // ---------- Weitere Knöpfe ----------
+  // Situation-Seite: Gegenstände bleiben das ganze Gespräch sichtbar, der Tipp beendet das Gespräch
   $("btn-sit").addEventListener("click", function () {
     next();
   });
@@ -776,13 +770,11 @@
     pre: "Fragebogen vorher",
     pause1: "STOPP-Seite 1",
     qa1: "Einstiegsfragen 1",
-    sit1: "Situation + Gegenstände 1",
-    talk1: "Gespräch 1 (dunkel)",
+    sit1: "Situation + Gespräch 1",
     fb1: "Fragebogen nach Gespräch 1",
     pause2: "STOPP-Seite 2",
     qa2: "Einstiegsfragen 2",
-    sit2: "Situation + Gegenstände 2",
-    talk2: "Gespräch 2 (dunkel)",
+    sit2: "Situation + Gespräch 2",
     fb2: "Fragebogen nach Gespräch 2",
     done: "Geschafft",
     post: "Abschlussfragebogen",
@@ -794,13 +786,11 @@
     pre: "Fragebogen vorher",
     pause1: "STOPP 1",
     qa1: "Einstiegsfragen 1",
-    sit1: "Situation 1",
-    talk1: "Gespräch 1",
+    sit1: "Gespräch 1",
     fb1: "Fragebogen 1",
     pause2: "STOPP 2",
     qa2: "Einstiegsfragen 2",
-    sit2: "Situation 2",
-    talk2: "Gespräch 2",
+    sit2: "Gespräch 2",
     fb2: "Fragebogen 2",
     done: "Geschafft",
     post: "Abschlussfragebogen",

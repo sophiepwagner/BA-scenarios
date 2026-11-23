@@ -553,35 +553,7 @@ select:focus-visible {
   margin-right: auto;
 }
 
-/* ===== Gespräch läuft: dunkel, kein Timer, keine Animation ===== */
-.talk {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  max-width: none;
-  min-height: 100vh;
-  min-height: 100dvh;
-}
-.talk[hidden] {
-  display: none;
-}
-.talk-text {
-  margin: auto 0;
-  font-size: 2rem;
-  color: var(--dark-ink);
-}
-.talk-bottom {
-  width: 100%;
-  max-width: 520px;
-  margin: 0 auto;
-  text-align: center;
-}
-.talk-hint {
-  margin: 12px 0 0;
-  font-size: 0.8rem;
-  color: #7a8290;
-}
+/* Dezenter Knopf unten auf den dunklen Einstiegsfragen */
 .endbtn {
   display: block;
   margin: 0 auto;

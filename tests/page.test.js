@@ -12,7 +12,7 @@ const text = {};
 list.forEach((q) => (text[q.id] = q.text));
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const CODE = "abc12";
-const IDX = { pause1: 2, qa1: 3, sit1: 4, talk1: 5, pause2: 7 };
+const IDX = { pause1: 2, qa1: 3, sit1: 4, pause2: 6 };
 
 // Baut die Seite mit eingebetteten Skripten; opts: config, search, ls (localStorage-Stand), mp3 (vorhandene Dateien), files404
 function boot(opts) {
@@ -130,8 +130,10 @@ const visible = (d, id) => !d.getElementById(id).hidden;
   assert(!visible(r.d, "s-sit"));
   await wait(60);
   assert(visible(r.d, "s-sit"), "Situation nach den Einstiegsfragen");
+  assert(!r.d.getElementById("sc-items").hidden && r.d.getElementById("sc-items").children.length > 0, "Gegenstände sichtbar");
+  assert(!r.d.getElementById("s-talk"), "kein eigener Gesprächs-Screen mehr");
   r.d.getElementById("btn-sit").click();
-  assert(visible(r.d, "s-talk"), "danach Gespräch");
+  assert(visible(r.d, "s-fb"), "danach Fragebogen");
   assert(!visible(r.d, "s-qa"));
   r.w.close();
 
@@ -175,7 +177,7 @@ const visible = (d, id) => !d.getElementById(id).hidden;
   assert(log(p.w).includes("frage_gestellt:" + exp[0]));
   p.w.close();
 
-  // Ablauf-Reihenfolge: pre, pause1, qa1, sit1, talk1, fb1, pause2, qa2, sit2, talk2, fb2
+  // Ablauf-Reihenfolge: pre, pause1, qa1, sit1, fb1, pause2, qa2, sit2, fb2
   assert.strictEqual(IDX.sit1, IDX.qa1 + 1);
 
   // 5. mp3: vorhandene Datei wird gespielt, fehlende fällt auf tts zurück (mit Konsolen-Log)
