@@ -62,7 +62,7 @@ window.SCENARIOS = {
   cabin: {
     title: "Eingeschneite Berghütte",
     intro:
-      "Ein Schneesturm hat euch in einer abgelegenen Berghütte eingeschlossen. Die Straße ist unpassierbar, die Rettung kommt voraussichtlich in drei Tagen. Die Hütte ist ausgekühlt, draußen sind es minus zehn Grad. Ihr habt nur das, was ihr bei euch habt.",
+      "Ein Schneesturm hat das Dach der abgelegenen Berghütte, in der ihr Schutz gesucht habt, schwer beschädigt, und es besteht Lawinengefahr. Das Funknetz ist ausgefallen, die Rettung kommt frühestens in drei Tagen. Etwa vier Stunden Fußmarsch durch den Schnee entfernt steht eine stabile, aber leere Notunterkunft. Draußen sind es minus zehn Grad. Ihr müsst die Hütte verlassen und könnt nur tragen, was ihr mitnehmt.",
     items: {
       a: [
         { icon: "woodpile", name: "Brennholz", note: "" },
